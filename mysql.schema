@@ -1,0 +1,36 @@
+CREATE TABLE users (
+  User VARCHAR(24) BINARY NOT NULL,
+  Password VARCHAR(255) BINARY NOT NULL,
+  Uid INT NOT NULL default '-1',
+  Gid INT NOT NULL default '-1',
+  Dir VARCHAR(255) BINARY NOT NULL,
+  sync_grp_uid INT NOT NULL default '-1',
+  PRIMARY KEY (User)
+)ENGINE = InnoDB;
+
+
+CREATE TABLE sync_group (
+  uid int not null,
+  grp_name varchar(255),
+  grp_master_ip int,
+  grp_master_slave1 int,
+  grp_master_slave2 int,
+  grp_master_slave3 int,
+  grp_master_slave4 int,
+  PRIMARY KEY (uid)
+)ENGINE = InnoDB;
+
+
+CREATE TABLE sync_svr (
+  srv_ip int not null,
+  srv_name varchar(255),
+  PRIMARY KEY (srv_ip)
+)ENGINE = InnoDB;
+
+insert into users values('myisuyong','qwpo1209',1000,1000,'/home/yisuyong',1); 
+
+
+insert into users values('m1','qwpo1209',1000,1000,'/home/yisuyong/ftphome/s1',1); 
+insert into users values('m2','qwpo1209',1000,1000,'/home/yisuyong/ftphome/s2',1); 
+insert into users values('m3','qwpo1209',1000,1000,'/home/yisuyong/ftphome/s3',1); 
+
