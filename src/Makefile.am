@@ -130,7 +130,9 @@ libpureftpd_a_SOURCES = \
 	upload-pipe.c \
 	upload-pipe.h \
 	utils.c \
-	utils.h
+	utils.h \
+	node_list.c \
+	node_list.h
 
 pure_ftpd_DEPENDS = \
 	libpureftpd.a \
