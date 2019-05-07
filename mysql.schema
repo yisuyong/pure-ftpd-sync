@@ -30,7 +30,7 @@ CREATE TABLE sync_svr (
 insert into users values('myisuyong','qwpo1209',1000,1000,'/home/yisuyong',1); 
 
 
-insert into users values('m1','qwpo1209',1000,1000,'/home/yisuyong/ftphome/s1',1); 
-insert into users values('m2','qwpo1209',1000,1000,'/home/yisuyong/ftphome/s2',1); 
-insert into users values('m3','qwpo1209',1000,1000,'/home/yisuyong/ftphome/s3',1); 
+insert into users values('m1','1111',1000,1000,'/home/yisuyong/ftphome/s1',1); 
+insert into users values('m2','1111',1000,1000,'/home/yisuyong/ftphome/s2',1); 
+insert into users values('m3','1111',1000,1000,'/home/yisuyong/ftphome/s3',1); 
 
