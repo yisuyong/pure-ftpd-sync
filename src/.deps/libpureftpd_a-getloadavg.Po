@@ -1,0 +1,6 @@
+libpureftpd_a-getloadavg.o: getloadavg.c /usr/include/stdc-predef.h \
+ ../config.h
+
+/usr/include/stdc-predef.h:
+
+../config.h:

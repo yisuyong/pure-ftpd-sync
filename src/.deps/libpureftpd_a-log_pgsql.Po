@@ -1,0 +1,6 @@
+libpureftpd_a-log_pgsql.o: log_pgsql.c /usr/include/stdc-predef.h \
+ ../config.h
+
+/usr/include/stdc-predef.h:
+
+../config.h:

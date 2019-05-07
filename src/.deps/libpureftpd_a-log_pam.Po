@@ -1,0 +1,5 @@
+libpureftpd_a-log_pam.o: log_pam.c /usr/include/stdc-predef.h ../config.h
+
+/usr/include/stdc-predef.h:
+
+../config.h:
