@@ -6,7 +6,7 @@
  --with-virtualchroot --without-ascii --with-altlog \
  --with-diraliases --with-uploadscript --with-extauth --with-puredb \
  --with-tls --with-rfc2640 --with-language=english \
- --with-mysql --with-everything \
+ --with-mysql \
  --with-debug 
 
 
