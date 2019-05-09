@@ -11,4 +11,4 @@
 
 
 #default 
-#./src/pure-ftpd --bind 21 --createhomedir  --noanonymous --chrooteveryone --dontresolve -l mysql:/root/pureftpd-mysql.conf
+# ./src/pure-ftpd --bind ip,21 --createhomedir  --noanonymous --chrooteveryone --dontresolve --daemonize --verboselog -l mysql:/root/pureftpd-mysql.conf

@@ -12,7 +12,7 @@ typedef struct _syncnode
         unsigned char nat;
 
         /* sock */
-        int *isEnable;
+        int isEnable;
         int sockfd;
         int n_datafd;
 
@@ -28,20 +28,20 @@ typedef struct _syncnode
         struct _syncnode *next;
 }syncnode;
 
-typedef syncnode* snptr;
-
 typedef struct _synclist{
         int count;
-        snptr head;
+        syncnode *head;
 }synclist;
 
 void init_list(synclist *lptr);
-void init_syncnode(snptr node);
-void insertSynclist(synclist *lptr,snptr new_nptr,int position);
-void deleteSynclist(synclist *lptr,int position);
-int check_all_node_code(snptr snode,int code);
-void modifySynclist(synclist *lptr,int value,int position);
+void init_syncnode(syncnode *node);
+void insertNode(synclist *lptr,int position,unsigned char *ip,unsigned char *port);
+int check_all_node_code(syncnode *snode,unsigned int code);
 void print_Synclist(synclist *lptr);
 void node_free(synclist *lptr);
+int init_node_socket(syncnode *snode,int type);
+int connect_node(syncnode *snode,int timeout,int block,int type);
+int connect_nonb(int sockfd,const struct sockaddr *saptr, int salen,fd_set *rset,fd_set *wset, int nsec,int block);
+
 
 #endif

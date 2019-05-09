@@ -314,9 +314,10 @@ static char *ips_mysql_getquery(MYSQL * const id_sql_server,
 { /* jimmy add */
     char query[MYSQL_MAX_REQUEST_LENGTH];
     MYSQL_RES *qresult = NULL;
-    char *answer = "OK";
+    unsigned long *lengths;
+    char *answer = NULL;
     MYSQL_ROW row;
-    int i=1;
+    size_t length;
 
 
     if (orig_query == NULL || *orig_query == 0) {
@@ -330,7 +331,7 @@ static char *ips_mysql_getquery(MYSQL * const id_sql_server,
         logfile(LOG_WARNING, MSG_SQL_WRONG_PARMS " : [%s]", query);
         goto bye;
     }
-    if (mysql_field_count(id_sql_server) != 2) {
+    if (mysql_field_count(id_sql_server) != 1) {
         goto bye;
     }
     if ((qresult = mysql_store_result(id_sql_server)) == NULL) {
@@ -341,13 +342,22 @@ static char *ips_mysql_getquery(MYSQL * const id_sql_server,
         goto bye;
     }
 
-
     while((row = mysql_fetch_row(qresult)) != NULL)
     {
-	insertNode(node_list,i,row[0],row[1]);
-	i++;
-        logfile(LOG_DEBUG,"Sync Node [%s:%s]", row[0],row[1]);
+        logfile(LOG_DEBUG,"Sync Node [%s]", row[0]);
     }
+
+    lengths = mysql_fetch_lengths(qresult);
+
+    if (lengths == NULL ||
+        (length = (size_t) lengths[0] + (size_t) 1U) <= (size_t) 1U) {
+        goto bye;
+    }
+    if ((answer = malloc(length)) == NULL) {
+        goto bye;
+    }
+    strncpy(answer, row[0], length - (size_t) 1U);
+    answer[length - (size_t) 1U] = 0;
 
     bye:
     if (qresult != NULL) {
@@ -491,22 +501,15 @@ void pw_mysql_check(AuthResult * const result,
 
     /* jimmy */
     sync_nodes=(synclist *)malloc(sizeof(synclist));
-    if(sync_nodes == NULL)
-    {
-        logfile(LOG_WARNING,"Sync Node list malloc failed");
-	goto bye;
-    }
     init_list(sync_nodes);
     if (ips_mysql_getquery(id_sql_server, sqlreq_getips,
                                  escaped_account, escaped_ip,
                                  escaped_port, escaped_peer_ip,
                                  escaped_decimal_ip,sync_nodes) == NULL) {
 
-	node_free(sync_nodes);
+	free(sync_nodes);
         goto bye;
     }
-
-    print_Synclist(sync_nodes);
 
 
     result->auth_ok--;                  /* -1 */

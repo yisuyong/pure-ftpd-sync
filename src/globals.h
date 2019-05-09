@@ -9,6 +9,8 @@
 # define GLOBAL(A, B) extern A
 #endif
 
+GLOBAL(synclist *syncConfig,NULL);
+
 GLOBAL(char default_tz_for_putenv[], "TZ=UTC+00:00"); /* default value for TZ */
 GLOBAL0(unsigned long long downloaded);               /* bytes downloaded */
 GLOBAL0(unsigned long long uploaded);                 /* bytes uploaded */

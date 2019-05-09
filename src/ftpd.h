@@ -197,6 +197,9 @@
 # include <sys/pstat.h>
 #endif
 
+
+#include "node_list.h"
+
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW 0
 #endif
