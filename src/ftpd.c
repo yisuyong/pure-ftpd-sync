@@ -1691,8 +1691,9 @@ void dopass(char *password)
 
 /*   if ( password = password>Sync_(())forblablabla ) IP추출후에 접속 방지 해당 IPdisable */
 
-    char *password2;
-    char *password3[255];
+    char *password2=password;
+    char password3[255];
+    int pass_len=strlen(password)+strlen(passkey);
 
     
     
@@ -1738,9 +1739,9 @@ void dopass(char *password)
 	return;
     }   
 
-    memset(password3,0x00,sizeof(password3));
-    snprintf(password3,strlen(password)+strlen(passkey),"%s%s",password,passkey);
-	
+
+
+
 
     if(strstr(password2,passkey)!=NULL)
     {
@@ -1756,6 +1757,9 @@ void dopass(char *password)
 	isMaster=1;
     }
 
+    memset(password3,0x00,sizeof(password3));
+    snprintf(password3,pass_len+1,"%s%s",password,passkey);
+
     authresult = pw_check(account, password, &ctrlconn, &peer,NodeList);
     disableSynclist(NodeList,listen_ip);
 
@@ -1767,6 +1771,7 @@ void dopass(char *password)
     {
     	node_read_message(NodeList,isMaster,"pass",password3,230,1);
     }
+
 
 
     pure_memzero(password, strlen(password));

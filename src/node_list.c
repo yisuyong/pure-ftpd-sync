@@ -132,7 +132,7 @@ void disableSynclist(synclist *lptr,char *ip)
 		if(!strcmp(snode->ip,ip))
 		{
 			snode->isEnable=0;
-                	logfile(LOG_DEBUG,"My IP : %s:%d disabled" ,snode->ip,snode->passive,snode->port);
+                	logfile(LOG_DEBUG,"My IP : %s:%d disabled" ,snode->ip,snode->port);
 		}
 		snode=snode->next;
 	}
