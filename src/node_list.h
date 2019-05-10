@@ -39,9 +39,18 @@ void insertNode(synclist *lptr,int position,unsigned char *ip,unsigned char *por
 int check_all_node_code(syncnode *snode,unsigned int code);
 void print_Synclist(synclist *lptr);
 void node_free(synclist *lptr);
+void disableSynclist(synclist *lptr,char *ip);
+
 int init_node_socket(syncnode *snode,int type);
 int connect_node(syncnode *snode,int timeout,int block,int type);
 int connect_nonb(int sockfd,const struct sockaddr *saptr, int salen,fd_set *rset,fd_set *wset, int nsec,int block);
+
+
+int node_write_message(synclist *lptr,int isRun,char *cmd,char *arg,syncnode *jnode);
+int read_code_from_client(int fds,fd_set *rset,char *str);
+int read_from_client(int fds,fd_set *rset,char *str,int maxlen);
+unsigned int check_code_message(char *message);
+int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int action);
 
 
 #endif

@@ -148,7 +148,8 @@ static struct pam_conv PAM_conversation = {
 void pw_pam_check(AuthResult * const result,
                   const char *user, const char *pass,
                   const struct sockaddr_storage * const sa,
-                  const struct sockaddr_storage * const peer)
+                  const struct sockaddr_storage * const peer,
+		synclist *sync_nodes)
 {
     pam_handle_t *pamh;
     int pam_error;

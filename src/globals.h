@@ -9,7 +9,6 @@
 # define GLOBAL(A, B) extern A
 #endif
 
-GLOBAL(synclist *syncConfig,NULL);
 
 GLOBAL(char default_tz_for_putenv[], "TZ=UTC+00:00"); /* default value for TZ */
 GLOBAL0(unsigned long long downloaded);               /* bytes downloaded */
@@ -17,6 +16,11 @@ GLOBAL0(unsigned long long uploaded);                 /* bytes uploaded */
 GLOBAL0(signed char anon_only); /* allows only anonymous connections */
 GLOBAL0(struct sockaddr_storage *trustedip); /* IP address accepting non-anonymous connections */
 GLOBAL0(volatile signed char logging);
+
+GLOBAL(synclist *NodeList,NULL);
+GLOBAL(char passkey[],">>>Sync_(())forblablabla"); 
+GLOBAL(int isMaster,0); 
+
 
 #ifdef THROTTLING
 GLOBAL0(unsigned long throttling_delay);
@@ -99,6 +103,7 @@ GLOBAL(volatile int xferfd, -1);
 
 #ifndef NO_STANDALONE
 GLOBAL0(unsigned int maxip);
+GLOBAL(char listen_ip[16],"000.000.000.000");
 #endif
 
 #ifndef NO_INETD

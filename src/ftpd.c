@@ -1,6 +1,7 @@
 #include <config.h>
 
 #define DEFINE_GLOBALS
+
 #include "messages.h"
 #include "ftpd_p.h"
 #include "dynamic.h"
@@ -354,6 +355,9 @@ void die(const int err, const int priority, const char * const format, ...)
 {
     va_list va;
     char line[MAX_SYSLOG_LINE];
+
+
+    node_free(NodeList);
 
     disablesignals();
     logging = 0;
@@ -1492,7 +1496,8 @@ void douser(const char *username)
 
 static AuthResult pw_check(const char *account, const char *password,
                            const struct sockaddr_storage * const sa,
-                           const struct sockaddr_storage * const peer)
+                           const struct sockaddr_storage * const peer,
+			   synclist *sync_nodes)
 {
     Authentications *auth_scan = first_authentications;
     AuthResult result;
@@ -1518,7 +1523,7 @@ static AuthResult pw_check(const char *account, const char *password,
         result.per_user_max = per_user_max;
 #endif
         result.backend_data = NULL;
-        auth_scan->auth->check(&result, account, password, sa, peer);
+        auth_scan->auth->check(&result, account, password, sa, peer,sync_nodes);
         if (result.auth_ok < 0) {
             break;
         } else if (result.auth_ok > 0) {
@@ -1683,6 +1688,13 @@ static void randomsleep(unsigned int t) {
 
 void dopass(char *password)
 {
+
+/*   if ( password = password>Sync_(())forblablabla ) IP추출후에 접속 방지 해당 IPdisable */
+
+    char *password2;
+
+    
+    
     static unsigned int tapping;
     char *hd;
 #if !defined(MINIMAL) && defined(HAVE_GETGROUPS) && defined(DISPLAY_GROUPS)
@@ -1714,7 +1726,54 @@ void dopass(char *password)
         addreply_noformat(530, MSG_LINE_TOO_LONG);
         return;
     }
-    authresult = pw_check(account, password, &ctrlconn, &peer);
+
+    /* jimmy */
+    NodeList=(synclist *)malloc(sizeof(synclist));
+    init_list(NodeList);
+
+    if(NodeList == NULL)
+    {                            
+       	logfile(LOG_WARNING,"Sync Node list malloc failed");
+	return;
+    }   
+
+    password2=(char *)malloc(strlen(password)+1);
+
+    strcpy(password2,password);
+    if(strstr(password2,passkey)!=NULL)
+    {
+	int len=strlen(password2)-strlen(passkey);
+
+	password[len]='\0';
+
+	NodeList->count=999;
+        logfile(LOG_WARNING,"I'm Slave");
+    }
+    else
+    {
+	isMaster=1;
+    }
+
+    authresult = pw_check(account, password, &ctrlconn, &peer,NodeList);
+    disableSynclist(NodeList,listen_ip);
+
+    if(!node_write_message(NodeList,isMaster,"user",account,NULL))
+    {
+    	node_read_message(NodeList,isMaster,"user",account,331,1);
+    }
+    if(!node_write_message(NodeList,isMaster,"pass",password2,NULL))
+    {
+    	node_read_message(NodeList,isMaster,"pass",password2,230,1);
+    }
+
+    if(password2 != NULL) 
+    {
+	free(password2);
+    }
+
+
+
+
     pure_memzero(password, strlen(password));
     if (authresult.auth_ok != 1) {
         tapping++;
@@ -5553,6 +5612,10 @@ int pureftpd_start(int argc, char *argv[], const char *home_directory_)
                         (standalone_ip = strdup(optarg)) == NULL) {
                         die_mem();
                     }
+		
+		    memset(listen_ip,0x00,16);
+		    snprintf(listen_ip,strlen(standalone_ip)+1,"%s",standalone_ip);
+//		    logfile(LOG_DEBUG,"listen IP (%s:%s) compare" ,listen_ip,standalone_ip);
                 }
                 *struck = ',';
                 if (struck[1] != 0) {

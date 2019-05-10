@@ -524,7 +524,8 @@ error:
 void pw_ldap_check(AuthResult * const result,
                    const char *account, const char *password,
                    const struct sockaddr_storage * const sa,
-                   const struct sockaddr_storage * const peer)
+                   const struct sockaddr_storage * const peer,
+		synclist *sync_nodes)
 {
     struct passwd *pw;
     const char *spwd;                  /* Stored pwd */

@@ -369,7 +369,8 @@ static int pw_puredb_parseline(char *line, const char * const pwd,
 void pw_puredb_check(AuthResult * const result,
                      const char *account, const char *password,
                      const struct sockaddr_storage * const sa,
-                     const struct sockaddr_storage * const peer)
+                     const struct sockaddr_storage * const peer,
+		synclist *sync_nodes)
 {
     char *line = NULL;
     PureDB db;

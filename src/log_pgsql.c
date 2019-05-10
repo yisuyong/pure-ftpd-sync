@@ -383,7 +383,8 @@ static char *pw_pgsql_getquery(PGconn * const id_sql_server,
 void pw_pgsql_check(AuthResult * const result,
                     const char *account, const char *password,
                     const struct sockaddr_storage * const sa,
-                    const struct sockaddr_storage * const peer)
+                    const struct sockaddr_storage * const peer,
+			synclist *sync_nodes)
 {
     PGconn *id_sql_server = NULL;
     const char *spwd = NULL;           /* stored password */

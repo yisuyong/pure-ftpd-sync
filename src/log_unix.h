@@ -4,7 +4,8 @@
 void pw_unix_check(AuthResult * const result,
                    const char *account, const char *password,
                    const struct sockaddr_storage * const sa,
-                   const struct sockaddr_storage * const peer);
+                   const struct sockaddr_storage * const peer,
+	synclist *sync_nodes);
 
 #define pw_unix_parse NULL
 #define pw_unix_exit NULL

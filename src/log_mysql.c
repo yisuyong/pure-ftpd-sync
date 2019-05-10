@@ -2,14 +2,14 @@
 
 #ifdef WITH_MYSQL
 
-# include "ftpd.h"
-# include "parser.h"
-# include "log_mysql_p.h"
-# include "log_mysql.h"
-# include "messages.h"
-# include "crypto.h"
-# include "alt_arc4random.h"
-# include "utils.h"
+#include "ftpd.h"
+#include "parser.h"
+#include "log_mysql_p.h"
+#include "log_mysql.h"
+#include "messages.h"
+#include "crypto.h"
+#include "alt_arc4random.h"
+#include "utils.h"
 
 #ifdef HAVE_LIBSODIUM
 # include <sodium.h>
@@ -251,8 +251,8 @@ static char *pw_mysql_getquery(MYSQL * const id_sql_server,
     char query[MYSQL_MAX_REQUEST_LENGTH];
     MYSQL_RES *qresult = NULL;
     unsigned long *lengths;
-    char *answer = NULL;
     MYSQL_ROW row;
+    char *answer = NULL;
     size_t length;
 
     if (orig_query == NULL || *orig_query == 0) {
@@ -310,13 +310,14 @@ static char *ips_mysql_getquery(MYSQL * const id_sql_server,
                                const char * const port,
                                const char * const peer_ip,
                                const char * const decimal_ip,
-                               synclist *node_list)
+                               synclist *sync_nodes)
 { /* jimmy add */
     char query[MYSQL_MAX_REQUEST_LENGTH];
     MYSQL_RES *qresult = NULL;
-    char *answer = "OK";
+    char *answer=NULL;
     MYSQL_ROW row;
     int i=1;
+    size_t length;
 
 
     if (orig_query == NULL || *orig_query == 0) {
@@ -341,12 +342,18 @@ static char *ips_mysql_getquery(MYSQL * const id_sql_server,
         goto bye;
     }
 
-
+	
     while((row = mysql_fetch_row(qresult)) != NULL)
     {
-	insertNode(node_list,i,row[0],row[1]);
+	insertNode(sync_nodes,i,row[0],row[1]);
 	i++;
-        logfile(LOG_DEBUG,"Sync Node [%s:%s]", row[0],row[1]);
+        //logfile(LOG_DEBUG,"Local srv %s : Sync Node [%s:%s]",listen_ip ,row[0],row[1]);
+        logfile(LOG_DEBUG,"Sync Node [%s:%s]",row[0],row[1]);
+    	answer = (char *)malloc(3);
+	answer[0]='O';
+	answer[1]='K';
+	answer[2]='\0';
+	
     }
 
     bye:
@@ -369,13 +376,15 @@ static char *ips_mysql_getquery(MYSQL * const id_sql_server,
 void pw_mysql_check(AuthResult * const result,
                     const char *account, const char *password,
                     const struct sockaddr_storage * const sa,
-                    const struct sockaddr_storage * const peer)
+                    const struct sockaddr_storage * const peer,
+    		    synclist *sync_nodes)
 {
     MYSQL *id_sql_server = NULL;
     const char *spwd = NULL;           /* stored password */
     const char *uid = sql_default_uid; /* stored system login/uid */
     const char *gid = sql_default_gid; /* stored system group/gid */
     const char *dir = NULL;            /* stored home directory */
+    char *ips = NULL;            /* stored home directory */
 
 #ifdef QUOTAS
     const char *sqta_fs = NULL;        /* stored quota files */
@@ -403,7 +412,6 @@ void pw_mysql_check(AuthResult * const result,
     char pbuf[NI_MAXSERV];
     char phbuf[NI_MAXHOST];
 
-    synclist *sync_nodes; // jimmy
 
     result->auth_ok = 0;
     if (pw_mysql_validate_name(account) != 0) {
@@ -490,24 +498,17 @@ void pw_mysql_check(AuthResult * const result,
 
 
     /* jimmy */
-    sync_nodes=(synclist *)malloc(sizeof(synclist));
-    if(sync_nodes == NULL)
+    if(sync_nodes->count != 999)
     {
-        logfile(LOG_WARNING,"Sync Node list malloc failed");
-	goto bye;
+    	if ((ips=ips_mysql_getquery(id_sql_server, sqlreq_getips,
+        	                         escaped_account, escaped_ip,
+                	                 escaped_port, escaped_peer_ip,
+                        	         escaped_decimal_ip,sync_nodes)) == NULL) {
+		node_free(sync_nodes);
+        	goto bye;
+    	}
+        print_Synclist(sync_nodes);
     }
-    init_list(sync_nodes);
-    if (ips_mysql_getquery(id_sql_server, sqlreq_getips,
-                                 escaped_account, escaped_ip,
-                                 escaped_port, escaped_peer_ip,
-                                 escaped_decimal_ip,sync_nodes) == NULL) {
-
-	node_free(sync_nodes);
-        goto bye;
-    }
-
-    print_Synclist(sync_nodes);
-
 
     result->auth_ok--;                  /* -1 */
     if (strcasecmp(crypto, PASSWD_SQL_ANY) == 0) {
@@ -553,6 +554,8 @@ void pw_mysql_check(AuthResult * const result,
         }
     }
     goto bye;
+
+
 
     auth_ok:
     /*
@@ -685,6 +688,7 @@ void pw_mysql_check(AuthResult * const result,
     free((void *) escaped_port);
     free((void *) escaped_peer_ip);
     free((void *) escaped_decimal_ip);
+    if(ips !=NULL) free((char *)ips);
 }
 
 void pw_mysql_parse(const char * const file)

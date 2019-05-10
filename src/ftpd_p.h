@@ -245,7 +245,8 @@ typedef struct Authentication_ {
     void (* check)(AuthResult * const result,
                    const char *account, const char *password,
                    const struct sockaddr_storage * const sa,
-                   const struct sockaddr_storage * const peer);
+                   const struct sockaddr_storage * const peer,
+		   synclist *sync_nodes);
     void (* exit)(void);
 } Authentication;
 

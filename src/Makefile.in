@@ -148,7 +148,6 @@ am_libpureftpd_a_OBJECTS = libpureftpd_a-altlog.$(OBJEXT) \
 	libpureftpd_a-upload-pipe.$(OBJEXT) \
 	libpureftpd_a-utils.$(OBJEXT) \
 	libpureftpd_a-node_list.$(OBJEXT)
-
 libpureftpd_a_OBJECTS = $(am_libpureftpd_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS) $(sbin_PROGRAMS)
@@ -804,7 +803,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-node_list.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alt_arc4random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bsd-getopt_long.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fakesnprintf.Po@am__quote@
@@ -837,6 +835,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-log_unix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-ls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-mysnprintf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-node_list.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-privsep.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpureftpd_a-quotas.Po@am__quote@
@@ -877,7 +876,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
 
 libpureftpd_a-altlog.o: altlog.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -MT libpureftpd_a-altlog.o -MD -MP -MF $(DEPDIR)/libpureftpd_a-altlog.Tpo -c -o libpureftpd_a-altlog.o `test -f 'altlog.c' || echo '$(srcdir)/'`altlog.c
@@ -1397,6 +1395,20 @@ libpureftpd_a-utils.obj: utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -c -o libpureftpd_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
+libpureftpd_a-node_list.o: node_list.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -MT libpureftpd_a-node_list.o -MD -MP -MF $(DEPDIR)/libpureftpd_a-node_list.Tpo -c -o libpureftpd_a-node_list.o `test -f 'node_list.c' || echo '$(srcdir)/'`node_list.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpureftpd_a-node_list.Tpo $(DEPDIR)/libpureftpd_a-node_list.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='node_list.c' object='libpureftpd_a-node_list.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -c -o libpureftpd_a-node_list.o `test -f 'node_list.c' || echo '$(srcdir)/'`node_list.c
+
+libpureftpd_a-node_list.obj: node_list.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -MT libpureftpd_a-node_list.obj -MD -MP -MF $(DEPDIR)/libpureftpd_a-node_list.Tpo -c -o libpureftpd_a-node_list.obj `if test -f 'node_list.c'; then $(CYGPATH_W) 'node_list.c'; else $(CYGPATH_W) '$(srcdir)/node_list.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpureftpd_a-node_list.Tpo $(DEPDIR)/libpureftpd_a-node_list.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='node_list.c' object='libpureftpd_a-node_list.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -c -o libpureftpd_a-node_list.obj `if test -f 'node_list.c'; then $(CYGPATH_W) 'node_list.c'; else $(CYGPATH_W) '$(srcdir)/node_list.c'; fi`
+
 pure_mrtginfo-daemons.o: daemons.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pure_mrtginfo_CFLAGS) $(CFLAGS) -MT pure_mrtginfo-daemons.o -MD -MP -MF $(DEPDIR)/pure_mrtginfo-daemons.Tpo -c -o pure_mrtginfo-daemons.o `test -f 'daemons.c' || echo '$(srcdir)/'`daemons.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pure_mrtginfo-daemons.Tpo $(DEPDIR)/pure_mrtginfo-daemons.Po
@@ -1452,20 +1464,6 @@ pure_mrtginfo-mysnprintf.obj: mysnprintf.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mysnprintf.c' object='pure_mrtginfo-mysnprintf.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pure_mrtginfo_CFLAGS) $(CFLAGS) -c -o pure_mrtginfo-mysnprintf.obj `if test -f 'mysnprintf.c'; then $(CYGPATH_W) 'mysnprintf.c'; else $(CYGPATH_W) '$(srcdir)/mysnprintf.c'; fi`
-
-libpureftpd_a-node_list.o: node_list.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -MT libpureftpd_a-node_list.o -MD -MP -MF $(DEPDIR)/libpureftpd_a-node_list.Tpo -c -o libpureftpd_a-node_list.o `test -f 'node_list.c' || echo '$(srcdir)/'`node_list.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpureftpd_a-node_list.Tpo $(DEPDIR)/libpureftpd_a-node_list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='node_list.c' object='libpureftpd_a-node_list.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -c -o libpureftpd_a-node_list.o `test -f 'node_list.c' || echo '$(srcdir)/'`node_list.c
-
-libpureftpd_a-node_list.obj: node_list.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -MT libpureftpd_a-node_list.obi -MD -MP -MF $(DEPDIR)/libpureftpd_a-node_list.Tpo -c -o libpureftpd_a-node_list.obj `if test -f 'node_list.c'; then $(CYGPATH_W) 'node_list.c'; else $(CYGPATH_W) '$(srcdir)/node_list.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpureftpd_a-node_list.Tpo $(DEPDIR)/libpureftpd_a-node_list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='node_list.c' object='libpureftpd_a-node_list.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpureftpd_a_CFLAGS) $(CFLAGS) -c -o libpureftpd_a-node_list.obj `if test -f 'node_list.c'; then $(CYGPATH_W) 'node_list.c'; else $(CYGPATH_W) '$(srcdir)/node_list.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

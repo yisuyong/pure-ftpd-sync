@@ -123,14 +123,34 @@ int check_all_node_code(syncnode *snode,unsigned int code)
 }
 
 
-void print_Synclist(synclist *lptr){
+void disableSynclist(synclist *lptr,char *ip)
+{
 	syncnode *snode=lptr->head;
+
 	while(snode!=NULL){
-//                logfile(LOG_DEBUG,"IP : %s - %s Passvie : %d Port : %d - %d \n",snode->ip,inet_ntoa(snode->node_addr.sin_addr),snode->passive,snode->port,htons(snode->node_addr.sin_port));
-                logfile(LOG_DEBUG,"IP : %s Passvie : %d Port : %d\n",snode->ip,snode->passive,snode->port);
+
+		if(!strcmp(snode->ip,ip))
+		{
+			snode->isEnable=0;
+                	logfile(LOG_DEBUG,"My IP : %s:%d disabled" ,snode->ip,snode->passive,snode->port);
+		}
 		snode=snode->next;
 	}
-	logfile(LOG_DEBUG,"Total: %d Server(s)\n",lptr->count);
+}
+
+
+
+void print_Synclist(synclist *lptr)
+{
+	syncnode *snode=lptr->head;
+
+
+	while(snode!=NULL){
+//                logfile(LOG_DEBUG,"IP : %s - %s Passvie : %d Port : %d - %d",snode->ip,inet_ntoa(snode->node_addr.sin_addr),snode->passive,snode->port,htons(snode->node_addr.sin_port));
+                logfile(LOG_DEBUG,"IP : %s Passvie : %d Port : %d",snode->ip,snode->passive,snode->port);
+		snode=snode->next;
+	}
+	logfile(LOG_DEBUG,"Total: %d Server(s)",lptr->count);
 }
 
 void node_free(synclist *lptr){
@@ -353,4 +373,221 @@ done:
                 return(-1);
         }
         return(0);
+}
+
+
+int node_write_message(synclist *lptr,int isRun,char *cmd,char *arg,syncnode *jnode)
+{
+	if(!isRun) return 9999;
+
+	syncnode *snode=lptr->head;
+
+        int cmd_len=strlen(cmd);
+        int arg_len=strlen(arg);
+        int i=0;
+
+        char up_cmd[cmd_len+1];
+        char sendMesg[cmd_len + arg_len + 4];
+
+
+        for(i=0; i < cmd_len; i++)
+        {
+                up_cmd[i] = (char)toupper( cmd[i]);
+        }
+        up_cmd[i]='\0';
+
+        snprintf(sendMesg,cmd_len+arg_len + 4,"%s %s\r\n",up_cmd,arg);
+
+        if((jnode!=NULL) && (jnode->isEnable))
+        {
+                int bytes=0;
+                int flags;
+
+                flags=fcntl(jnode->sockfd, F_GETFL, 0);
+                fcntl(jnode->sockfd, F_SETFL, (flags & (~O_NONBLOCK)));
+
+                bytes=write(jnode->sockfd,sendMesg,sizeof(sendMesg)-1);
+                logfile(LOG_DEBUG,"Node : %s Port %d. sendBytes : %d Message : %s",jnode->ip,jnode->port,bytes,sendMesg);
+
+                fcntl(jnode->sockfd, F_SETFL,flags);
+                return 0;
+        }
+        else
+        {
+                while(snode!=NULL)
+                {
+                        int bytes=0;
+                        int flags;
+
+                        if(snode->isEnable)
+                        {
+
+                                flags=fcntl(snode->sockfd, F_GETFL, 0);
+                                fcntl(snode->sockfd, F_SETFL, (flags & (~O_NONBLOCK)));
+
+                                bytes=write(snode->sockfd,sendMesg,sizeof(sendMesg)-1);
+                                logfile(LOG_DEBUG,"Node : %s Port %d. sendBytes : %d Message : %s",snode->ip,snode->port,bytes,sendMesg);
+
+                                fcntl(snode->sockfd, F_SETFL,flags);
+                        }
+                        snode=snode->next;
+                }
+        }
+	return 0;
+
+}
+
+
+
+int read_from_client(int fds,fd_set *rset,char *str,int maxlen)
+{
+
+   int n;
+   char c;
+
+   int  offset=0;
+   int  nBytes=0;
+
+   bzero(str,sizeof(str));
+
+
+
+   //for (n = 1; n < maxlen; n++)
+   while(1)
+   {
+      nBytes = read(fds, &c, 1);
+      if(nBytes == -1)
+      {
+         if(errno == EINTR || errno == EAGAIN)
+         {
+                continue;
+         }
+         else if(errno == ECONNRESET ) /* TCP CONN RESET */
+         {
+            logfile(LOG_DEBUG,"[sds = %d] peer connect reset",fds);
+            close(fds);
+            FD_CLR(fds, rset);
+            return -1;
+         }
+         else
+         {
+            logfile(LOG_DEBUG,"[sds = %d] read error",fds);
+            close(fds);
+            FD_CLR(fds, rset);
+            return -1;
+         }
+      }
+      else if(nBytes == 0)
+      {
+          if(n==1)
+          {
+                return 0;
+          }
+          else
+          {
+                break;
+          }
+      }
+      else //nBytes=1
+      {
+                *str = c;      /* copy character to buffer */
+                str++;         /* increment buffer index */
+                if (c == '\n') /* is it a newline character? */
+                break;      /* then exit for loop */
+      }
+   }
+   *str=0;
+   return n;
+}
+
+unsigned int check_code_message(char *message)
+{
+        char code[6];
+        char str_num[6];
+        int codenum;
+        int i=0;
+        int flag=0;
+
+        strncpy(code,message,6);
+
+        bzero(str_num,sizeof(str_num));
+
+        for(i=0;i<sizeof(code);i++)
+        {
+                if(code[i]==0x20) //space
+                {
+                        str_num[i]=0x00;
+                        codenum=atoi(str_num);
+                        flag=1;
+                        break;
+                }
+                str_num[i]=code[i];
+        }
+
+        if(flag)
+        {
+                // https://en.wikipedia.org/wiki/List_of_FTP_server_return_codes
+                if(codenum >= 100 && codenum <= 10068)
+                {
+                        return codenum;
+                }
+        }
+
+        return 0;
+}
+
+
+int read_code_from_client(int fds,fd_set *rset,char *str)
+{
+        int byte=0;
+        unsigned int code=0;
+        int flags;
+
+        flags = fcntl(fds, F_GETFL, 0);
+        fcntl(fds, F_SETFL, flags | O_NONBLOCK);
+
+        do
+        {
+                byte=read_from_client(fds,rset,str,1);
+                if(byte<0)
+                {
+                        return -1;
+                }
+                code=check_code_message(str);
+        }while(!code);
+        return code;
+}
+
+int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int action)
+{
+	if(!isRun) return 9999;
+
+        syncnode *snode = lptr->head;
+        int error_flag=0;
+
+
+        while(snode!=NULL)
+        {
+                if(snode->isEnable)
+                {
+                                snode->lastCode=read_code_from_client(snode->sockfd,&snode->rset,snode->readMesg);
+                                if(!code && (snode->lastCode != code))
+                                {
+                                        logfile(LOG_DEBUG,"Node Read error : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
+                                        if(action)
+                                        {
+                                                die(421, LOG_ERR,"COMMAND ERROR : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
+                                        }
+                                        error_flag++;
+                                }
+
+                                logfile(LOG_DEBUG,"Node Read OK : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
+                                if(snode->lastCode==421)
+                                {
+                                        die(421, LOG_ERR,"COMMAND ERROR : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
+                                }
+                }
+                snode=snode->next;
+        }
+        return error_flag;
 }

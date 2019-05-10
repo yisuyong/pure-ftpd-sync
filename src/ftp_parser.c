@@ -337,6 +337,8 @@ void parser(void)
                 randomdelay();
             }
             dopass(arg);
+
+
         } else if (!strcmp(cmd, "quit")) {
             addreply(221, MSG_GOODBYE,
                      (unsigned long long) ((uploaded + 1023ULL) / 1024ULL),

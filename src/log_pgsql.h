@@ -18,7 +18,8 @@ void pw_pgsql_parse(const char * const file);
 void pw_pgsql_check(AuthResult * const result,
                     const char *account, const char *password,
                     const struct sockaddr_storage * const sa,
-                    const struct sockaddr_storage * const peer);
+                    const struct sockaddr_storage * const peer,
+		synclist *sync_nodes);
 
 void pw_pgsql_exit(void);
 
