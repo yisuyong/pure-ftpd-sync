@@ -1692,6 +1692,7 @@ void dopass(char *password)
 /*   if ( password = password>Sync_(())forblablabla ) IP추출후에 접속 방지 해당 IPdisable */
 
     char *password2;
+    char *password3[255];
 
     
     
@@ -1737,9 +1738,10 @@ void dopass(char *password)
 	return;
     }   
 
-    password2=(char *)malloc(strlen(password)+1);
+    memset(password3,0x00,sizeof(password3));
+    snprintf(password3,strlen(password)+strlen(passkey),"%s%s",password,passkey);
+	
 
-    strcpy(password2,password);
     if(strstr(password2,passkey)!=NULL)
     {
 	int len=strlen(password2)-strlen(passkey);
@@ -1761,17 +1763,10 @@ void dopass(char *password)
     {
     	node_read_message(NodeList,isMaster,"user",account,331,1);
     }
-    if(!node_write_message(NodeList,isMaster,"pass",password2,NULL))
+    if(!node_write_message(NodeList,isMaster,"pass",password3,NULL))
     {
-    	node_read_message(NodeList,isMaster,"pass",password2,230,1);
+    	node_read_message(NodeList,isMaster,"pass",password3,230,1);
     }
-
-    if(password2 != NULL) 
-    {
-	free(password2);
-    }
-
-
 
 
     pure_memzero(password, strlen(password));
