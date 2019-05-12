@@ -403,6 +403,10 @@ int mysnprintf(char *str, size_t size, const char *format, ...);
 
 extern int opt_a, opt_C, opt_d, opt_F, opt_l, opt_R;
 
+int node_cwd_chk(char *cddir,int reqcode);
+int node_mkdir_chk(char *make_dir,int reqcode);
+
+
 #ifndef CONFDIR
 # define CONFDIR "/etc"
 #endif

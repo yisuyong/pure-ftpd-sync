@@ -98,10 +98,15 @@ void insertNode(synclist *lptr,int position,unsigned char *ip,unsigned char *por
 }
 
 
-int check_all_node_code(syncnode *snode,unsigned int code)
+int check_all_node_code(synclist *lptr,unsigned int code,int isRun)
 {
 	int i=1;
 	int x=1;
+
+	syncnode *snode=lptr->head;
+
+	if(!isRun) return 0;
+
 	while(snode!=NULL)
 	{
 		if(snode->isEnable)

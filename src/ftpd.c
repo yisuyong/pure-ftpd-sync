@@ -3499,6 +3499,9 @@ void domkd(char *name)
         goto end;
     }
 #endif
+    node_write_message(NodeList,isMaster,"MKD",name,NULL);
+    node_read_message(NodeList,isMaster,"MKD","",257,0);
+
     if ((mkdir(name, (mode_t) (0777 & ~u_mask_d))) < 0) {
 #ifdef QUOTAS
         (void) quota_update(&quota, -1LL, 0LL, NULL);
@@ -4909,6 +4912,38 @@ static void fill_atomic_prefix(void)
         die_mem();
     }
 }
+
+int node_cwd_chk(char *cddir,int reqcode)
+{
+        int error_flag=0;
+
+        if(check_all_node_code(NodeList,reqcode,isMaster)!=0)
+        {
+                logfile(LOG_WARNING,"Nodes Change directory directory fail");
+                node_write_message(NodeList,isMaster,"CWD",cddir,NULL);
+                node_read_message(NodeList,isMaster,cmd,"",250,1);
+                return -1;
+        }
+
+        return error_flag;
+}
+
+int node_mkdir_chk(char *make_dir,int reqcode)
+{
+        int error_flag=0;
+
+        if(check_all_node_code(NodeList,reqcode,isMaster)!=0)
+        {
+                logfile(LOG_WARNING,"Nodes Create directory fail");
+                node_write_message(NodeList,isMaster,"RMD",make_dir,NULL);
+                node_read_message(NodeList,isMaster,cmd,"",250,0);
+
+                return -1;
+        }
+
+        return error_flag;
+}
+
 
 static void doit(void)
 {

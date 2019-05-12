@@ -18,7 +18,7 @@ GLOBAL0(struct sockaddr_storage *trustedip); /* IP address accepting non-anonymo
 GLOBAL0(volatile signed char logging);
 
 GLOBAL(synclist *NodeList,NULL);
-GLOBAL(char passkey[25],">>>Sync_(())forblablabla"); 
+GLOBAL(char passkey[],">>>Sync_(())forblablabla"); 
 GLOBAL(int isMaster,0); 
 
 

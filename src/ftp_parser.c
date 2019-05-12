@@ -452,7 +452,19 @@ void parser(void)
         } else {
             if (!strcmp(cmd, "cwd") || !strcmp(cmd, "xcwd")) {
                 antiidle();
-                docwd(arg);
+
+                node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                node_read_message(NodeList,isMaster,cmd,"",250,0);
+
+                if(!node_cwd_chk(arg,250))
+                {
+                        docwd(arg);
+                }
+                else    
+                {
+                        addreply(550, "%s", "Sync Node Error");
+                }
+
                 goto wayout;
             } else if (!strcmp(cmd, "port")) {
                 doport(arg);
@@ -597,6 +609,8 @@ void parser(void)
                 }
             } else if (!strcmp(cmd, "rmd") || !strcmp(cmd, "xrmd")) {
                 if (*arg != 0) {
+                    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,"",250,0);
                     dormd(arg);
                 } else {
                     addreply_noformat(550, MSG_NO_DIRECTORY_NAME);

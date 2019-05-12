@@ -36,7 +36,7 @@ typedef struct _synclist{
 void init_list(synclist *lptr);
 void init_syncnode(syncnode *node);
 void insertNode(synclist *lptr,int position,unsigned char *ip,unsigned char *port);
-int check_all_node_code(syncnode *snode,unsigned int code);
+int check_all_node_code(synclist *lptr,unsigned int code,int isRun);
 void print_Synclist(synclist *lptr);
 void node_free(synclist *lptr);
 void disableSynclist(synclist *lptr,char *ip);
@@ -51,6 +51,8 @@ int read_code_from_client(int fds,fd_set *rset,char *str);
 int read_from_client(int fds,fd_set *rset,char *str,int maxlen);
 unsigned int check_code_message(char *message);
 int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int action);
+
+
 
 
 #endif
