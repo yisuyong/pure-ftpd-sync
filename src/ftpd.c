@@ -1740,9 +1740,6 @@ void dopass(char *password)
     }   
 
 
-
-
-
     if(strstr(password2,passkey)!=NULL)
     {
 	int len=strlen(password2)-strlen(passkey);
@@ -1763,6 +1760,9 @@ void dopass(char *password)
     authresult = pw_check(account, password, &ctrlconn, &peer,NodeList);
     disableSynclist(NodeList,listen_ip);
 
+
+    node_read_message(NodeList,isMaster,"user","connect",220,1);
+    
     if(!node_write_message(NodeList,isMaster,"user",account,NULL))
     {
     	node_read_message(NodeList,isMaster,"user",account,331,1);
@@ -3499,8 +3499,6 @@ void domkd(char *name)
         goto end;
     }
 #endif
-    node_write_message(NodeList,isMaster,"MKD",name,NULL);
-    node_read_message(NodeList,isMaster,"MKD","",257,0);
 
     if ((mkdir(name, (mode_t) (0777 & ~u_mask_d))) < 0) {
 #ifdef QUOTAS
@@ -3508,7 +3506,19 @@ void domkd(char *name)
 #endif
         error(550, MSG_MKD_FAILURE);
     } else {
-        addreply(257, "\"%s\" : " MSG_MKD_SUCCESS, name);
+
+    node_write_message(NodeList,isMaster,"MKD",name,NULL);
+    node_read_message(NodeList,isMaster,"MKD","",257,0);
+
+    if(node_mkdir_chk(NodeList,isMaster,name,257)<0)
+    {
+        logfile(LOG_WARNING, "%s Sync node create failed.", name);
+        dormd(name,1);
+        return;
+    }
+    else{
+   	 addreply(257, "\"%s\" : " MSG_MKD_SUCCESS, name);
+    }
 #ifndef MINIMAL
         cwd_failures = 0UL;
 #endif
@@ -3519,7 +3529,7 @@ void domkd(char *name)
 #endif
 }
 
-void dormd(char *name)
+void dormd(char *name,int flag)
 {
 #ifdef QUOTAS
     Quota quota;
@@ -3543,9 +3553,19 @@ void dormd(char *name)
             displayquota(&quota);
         }
 #endif
-        addreply_noformat(250, MSG_RMD_SUCCESS);
+
+	if(flag)
+	{
+       	 addreply_noformat(550, "Sync node create failed.");
+	}
+	else
+	{
+       	 addreply_noformat(250, MSG_RMD_SUCCESS);
+	}
     }
 }
+
+
 
 #ifndef MINIMAL
 void dofeat(void)
@@ -4025,6 +4045,11 @@ static int ul_handle_data(ULHandler * const ulhandler, off_t * const uploaded,
         }
 #endif
     ulhandler->total_uploaded += *uploaded;
+
+    //jimmy
+    node_data_write(NodeList,isMaster,ulhandler->buf,readnb);
+
+
     if (ulhandler->bandwidth > 0UL) {
         ulhandler_throttle(ulhandler, *uploaded, ts_start, &required_sleep);
         if (required_sleep > 0.0) {
@@ -4315,6 +4340,9 @@ void dostor(char *name, const int append, const int autorename)
         goto afterquota;
     }
 #endif
+	//jimmy
+    node_opendata(NodeList,isMaster);
+
     opendata();
     if (xferfd == -1) {
         (void) close(f);
@@ -4354,6 +4382,18 @@ void dostor(char *name, const int append, const int autorename)
 
     /* Here starts the real upload code */
 
+
+    if(append!=0)
+    {
+    	node_write_message(NodeList,isMaster,"APPE",name,NULL);
+    	node_read_message(NodeList,isMaster,"APPE",name,150,1);
+    }
+    else
+    {
+    	node_write_message(NodeList,isMaster,"STOR",name,NULL);
+    	node_read_message(NodeList,isMaster,"STOR",name,150,1);
+    }
+
     started = get_usec_time();
 
     if (ul_init(&ulhandler, clientfd, tls_cnx, xferfd, name, f, tls_data_cnx,
@@ -4366,6 +4406,7 @@ void dostor(char *name, const int append, const int autorename)
     }
     (void) close(f);
     closedata();
+    node_closedata(NodeList,isMaster);
 
     /* Here ends the real upload code */
 
@@ -4437,6 +4478,8 @@ void dostor(char *name, const int append, const int autorename)
         addreply(552, MSG_QUOTA_EXCEEDED, name);
     } else {
         if (ret == 0) {
+		//jimmy
+            node_read_message(NodeList,isMaster,"STOR","",226,0);
             addreply_noformat(226, MSG_TRANSFER_SUCCESSFUL);
         } else {
             addreply_noformat(451, MSG_ABORTED);
@@ -4913,36 +4956,7 @@ static void fill_atomic_prefix(void)
     }
 }
 
-int node_cwd_chk(char *cddir,int reqcode)
-{
-        int error_flag=0;
 
-        if(check_all_node_code(NodeList,reqcode,isMaster)!=0)
-        {
-                logfile(LOG_WARNING,"Nodes Change directory directory fail");
-                node_write_message(NodeList,isMaster,"CWD",cddir,NULL);
-                node_read_message(NodeList,isMaster,cmd,"",250,1);
-                return -1;
-        }
-
-        return error_flag;
-}
-
-int node_mkdir_chk(char *make_dir,int reqcode)
-{
-        int error_flag=0;
-
-        if(check_all_node_code(NodeList,reqcode,isMaster)!=0)
-        {
-                logfile(LOG_WARNING,"Nodes Create directory fail");
-                node_write_message(NodeList,isMaster,"RMD",make_dir,NULL);
-                node_read_message(NodeList,isMaster,cmd,"",250,0);
-
-                return -1;
-        }
-
-        return error_flag;
-}
 
 
 static void doit(void)

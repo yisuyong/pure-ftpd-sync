@@ -319,6 +319,8 @@ void parser(void)
 #ifndef MINIMAL
         if (!strcmp(cmd, "noop")) {
             antiidle();
+            node_write_message(NodeList,isMaster,cmd,"",NULL);
+            node_read_message(NodeList,isMaster,cmd,"",200,1);
             donoop();
             goto wayout;
         }
@@ -410,6 +412,8 @@ void parser(void)
             addreply_noformat(500, MSG_AUTH_UNIMPLEMENTED);
         } else if (!strcmp(cmd, "type")) {
             antiidle();
+            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+            node_read_message(NodeList,isMaster,cmd,arg,200,1);
             dotype(arg);
             goto wayout;
         } else if (!strcmp(cmd, "mode")) {
@@ -456,13 +460,13 @@ void parser(void)
                 node_write_message(NodeList,isMaster,cmd,arg,NULL);
                 node_read_message(NodeList,isMaster,cmd,"",250,0);
 
-                if(!node_cwd_chk(arg,250))
+                if(!node_cwd_chk(NodeList,isMaster,arg,250))
                 {
                         docwd(arg);
                 }
                 else    
                 {
-                        addreply(550, "%s", "Sync Node Error");
+                        addreply(550, "%s", "Sync Node change directory Error");
                 }
 
                 goto wayout;
@@ -517,16 +521,44 @@ void parser(void)
                     if (size < (off_t) 0) {
                         addreply_noformat(501, MSG_STAT_FAILURE);
                     } else {
-                        doallo(size);
+                        node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                        if(!node_read_message(NodeList,isMaster,cmd,arg,200,0))
+                        {
+                                doallo(size);
+                        }
+                        else
+                        {
+                                //한개의 노드라도 디스크 여유 없으면 안됨
+                                addreply_noformat(552, MSG_NO_DISK_SPACE);
+                        }
                     }
                 }
 #endif
             } else if (!strcmp(cmd, "pwd") || !strcmp(cmd, "xpwd")) {
                 antiidle();
+
+                node_write_message(NodeList,isMaster,cmd,"",NULL);
+                node_read_message(NodeList,isMaster,cmd,"",257,0);
+
+                if(node_dir_chk(NodeList,isMaster,wd))
+                {
+                        die(421,LOG_ERR,"Sync node current dir not match.");
+                }
+		
                 addreply(257, "\"%s\" " MSG_IS_YOUR_CURRENT_LOCATION, wd);
                 goto wayout;
             } else if (!strcmp(cmd, "cdup") || !strcmp(cmd, "xcup")) {
-                docwd("..");
+                	node_write_message(NodeList,isMaster,cmd,"",NULL);
+	                node_read_message(NodeList,isMaster,cmd,"",250,0);
+			if(!node_cwd_chk(NodeList,isMaster,arg,250))
+			{
+                		docwd("..");
+
+			}
+                	else    
+	                {
+                        	addreply(550, "%s", "Sync Node change directory Error");
+                	}
             } else if (!strcmp(cmd, "retr")) {
                 if (*arg != 0) {
 #ifdef WITH_TLS
@@ -545,7 +577,17 @@ void parser(void)
             } else if (!strcmp(cmd, "rest")) {
                 antiidle();
                 if (*arg != 0) {
-                    dorest(arg);
+		    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,"",350,0);
+		    if(check_all_node_code(NodeList,isMaster,350)!=0)
+                    {
+                        addreply_noformat(501, "Sync node No restart point");
+                        restartat = (off_t) 0;
+                    }
+                    else
+                    {
+                            dorest(arg);
+                    }
                 } else {
                     addreply_noformat(501, MSG_NO_RESTART_POINT);
                     restartat = (off_t) 0;
@@ -553,7 +595,17 @@ void parser(void)
                 goto wayout;
             } else if (!strcmp(cmd, "dele")) {
                 if (*arg != 0) {
-                    dodele(arg);
+                    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,"",250,0);
+		    if(check_all_node_code(NodeList,isMaster,250)!=0)
+	     	    { 
+			logfile(LOG_WARNING,"Remove file sync node error.");
+                    	addreply_noformat(501, "Remove file sync node error.");
+		    }
+		    else
+		    {
+	                    dodele(arg);
+		    }
                 } else {
                     addreply_noformat(501, MSG_NO_FILE_NAME);
                 }
@@ -603,7 +655,7 @@ void parser(void)
             } else if (!strcmp(cmd, "mkd") || !strcmp(cmd, "xmkd")) {
                 arg = revealextraspc(arg);
                 if (*arg != 0) {
-                    domkd(arg);
+        	            domkd(arg);
                 } else {
                     addreply_noformat(501, MSG_NO_DIRECTORY_NAME);
                 }
@@ -611,7 +663,7 @@ void parser(void)
                 if (*arg != 0) {
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
                     node_read_message(NodeList,isMaster,cmd,"",250,0);
-                    dormd(arg);
+                    dormd(arg,0);
                 } else {
                     addreply_noformat(550, MSG_NO_DIRECTORY_NAME);
                 }
@@ -619,9 +671,15 @@ void parser(void)
 #ifndef MINIMAL
             } else if (!strcmp(cmd, "stat")) {
                 if (*arg != 0) {
+		    node_opendata(NodeList,isMaster);
+                    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,"",150,1);
+                    node_read_data(NodeList,isMaster,0);
+                    node_read_message(NodeList,isMaster,cmd,"",226,1);
                     dolist(arg, 1);
                 } else {
-                    addreply_noformat(211, "https://www.pureftpd.org/");
+                    //addreply_noformat(211, "https://www.pureftpd.org/");
+                    addreply_noformat(211, "FTP Server");
                 }
 #endif
             } else if (!strcmp(cmd, "list")) {
@@ -632,6 +690,12 @@ void parser(void)
                 } else
 #endif
                 {
+		    node_opendata(NodeList,isMaster);
+                    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,"",150,1);
+                    node_read_data(NodeList,isMaster,0);
+                    node_read_message(NodeList,isMaster,cmd,"",226,1);
+
                     dolist(arg, 0);
                 }
             } else if (!strcmp(cmd, "nlst")) {
@@ -665,10 +729,18 @@ void parser(void)
                 } else
 # endif
                 {
+                    node_opendata(NodeList,isMaster);
+                    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,"",150,1);
+                    node_read_data(NodeList,isMaster,0);
+                    node_read_message(NodeList,isMaster,cmd,"",226,1);
+
                     domlsd(*arg != 0 ? arg : ".");
                 }
 #endif
             } else if (!strcmp(cmd, "abor")) {
+                node_write_message(NodeList,isMaster,cmd,"",NULL);
+                node_read_message(NodeList,isMaster,cmd,"",226,1); 
                 addreply_noformat(226, MSG_ABOR_SUCCESS);
 #ifndef MINIMAL
             } else if (!strcmp(cmd, "site")) {

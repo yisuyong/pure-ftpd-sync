@@ -36,7 +36,7 @@ typedef struct _synclist{
 void init_list(synclist *lptr);
 void init_syncnode(syncnode *node);
 void insertNode(synclist *lptr,int position,unsigned char *ip,unsigned char *port);
-int check_all_node_code(synclist *lptr,unsigned int code,int isRun);
+int check_all_node_code(synclist *lptr,int isRun,unsigned int code);
 void print_Synclist(synclist *lptr);
 void node_free(synclist *lptr);
 void disableSynclist(synclist *lptr,char *ip);
@@ -51,6 +51,24 @@ int read_code_from_client(int fds,fd_set *rset,char *str);
 int read_from_client(int fds,fd_set *rset,char *str,int maxlen);
 unsigned int check_code_message(char *message);
 int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int action);
+
+void onenode_read_message(syncnode *snode);
+int onenode_pasv_send(syncnode *snode);
+void node_opendata(synclist *lptr,int isRun);
+void node_closedata(synclist *lptr,int isRun);
+
+int init_node_data_sock(synclist *lptr);
+
+int read_data_from_client(int fds,syncnode *snode,int timeout);
+int node_read_data(synclist *lptr,int isRun,int action);
+int node_socket_close(int fd);
+
+int node_data_write(synclist *lptr,int isRun,unsigned char *buf,off_t chunk_size);
+int node_dir_chk(synclist *lptr,int isRun,char *cur_dir);
+int node_cwd_chk(synclist *lptr,int isRun,char *cddir,int reqcode);
+int node_mkdir_chk(synclist *lptr,int isRun,char *cddir,int reqcode);
+
+
 
 
 

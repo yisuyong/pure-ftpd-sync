@@ -98,7 +98,7 @@ void insertNode(synclist *lptr,int position,unsigned char *ip,unsigned char *por
 }
 
 
-int check_all_node_code(synclist *lptr,unsigned int code,int isRun)
+int check_all_node_code(synclist *lptr,int isRun,unsigned int code)
 {
 	int i=1;
 	int x=1;
@@ -385,7 +385,6 @@ int node_write_message(synclist *lptr,int isRun,char *cmd,char *arg,syncnode *jn
 {
 	if(!isRun) return 9999;
 
-	syncnode *snode=lptr->head;
 
         int cmd_len=strlen(cmd);
         int arg_len=strlen(arg);
@@ -419,6 +418,8 @@ int node_write_message(synclist *lptr,int isRun,char *cmd,char *arg,syncnode *jn
         }
         else
         {
+		syncnode *snode=lptr->head;
+	
                 while(snode!=NULL)
                 {
                         int bytes=0;
@@ -594,5 +595,375 @@ int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int 
                 }
                 snode=snode->next;
         }
+        return error_flag;
+}
+
+int init_node_data_sock(synclist *lptr)
+{
+        int timeout=2;
+        syncnode *snode = lptr->head;
+
+        while(snode!=NULL)
+        {
+          if(snode->isEnable)
+          {
+            if(snode->passive)
+            {
+              if(init_node_socket(snode,0)==0)
+              {
+                  connect_node(snode,timeout,1,0);
+              }
+              else
+              {
+                 logfile(LOG_DEBUG,"Node %s,passive data socket init errror",snode->ip);
+                 return -1;
+                 //에러처리
+               }
+            }
+            else
+            {
+                   //active mode
+            }
+          }
+          snode=snode->next;
+         }
+
+        return 0;
+}
+
+
+void onenode_read_message(syncnode *snode)
+{
+        snode->lastCode=read_code_from_client(snode->sockfd,&snode->rset,snode->readMesg);
+        logfile(LOG_DEBUG,"Node : %s Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
+}
+
+
+int onenode_pasv_send(syncnode *snode)
+{
+        int i=0;
+	
+	synclist *lptr;
+
+	
+        node_write_message(lptr,1,"PASV","",snode);
+        onenode_read_message(snode);
+
+        if(snode->lastCode!=227)
+        {
+                logfile(LOG_ERR,"PASV mode error.(%s / %d)",snode->ip,snode->lastCode);
+		return -1;
+        }
+        else
+        {
+                int b[6]={0,0,0,0,0,0};
+                int len,i,x=0;
+                char *port_str=snode->readMesg+4;
+                len = strlen(port_str += 4);
+
+                len=strlen(snode->readMesg);
+
+                for (i = 0; i < len; i++)
+                {
+                        if(!isdigit(port_str[i])) port_str[i] = ' ';
+                }
+                if (sscanf(port_str, "%u %u %u %u %u %u",
+                        b, b + 1, b + 2, b + 3, b + 4, b + 5) != 6)
+                {
+                        logfile(LOG_DEBUG,"node %s : Read data port error\n",snode->ip);
+                        die(421, LOG_ERR,"PASV Port error.(%s / %d)",snode->ip,snode->lastCode);
+                }
+                snode->dport=(b[4] * 256) + b[5];
+                if(snode->nat)
+                {
+                        snode->dip=(char *)malloc(strlen(snode->ip)+1);
+                        memcpy(snode->dip,snode->ip,strlen(snode->ip)+1);
+                }
+                else
+                {
+
+                        char temp[16];
+                        sprintf(temp,"%d.%d.%d.%d",b[0],b[1],b[2],b[3]);
+                        snode->dip=(char *)malloc(strlen(temp)+1);
+                        memcpy(snode->dip,temp,strlen(temp)+1);
+                }
+                //logfile(LOG_DEBUG,"node %s : Data IP / Port : %s %d(= %d * 256 + %d)",
+                //              snode->ip,snode->dip,snode->dport,b[4],b[5]);
+        }
+
+        return 0;
+}
+
+int node_socket_close(int fd)
+{
+	return shutdown(fd,SHUT_RDWR);
+}
+
+void node_closedata(synclist *lptr,int isRun)
+{
+        syncnode *snode = lptr->head;
+        int i=0;
+	
+	if(!isRun) return;
+
+        while(snode!=NULL)
+        {
+                if(snode->isEnable)
+                {
+                        if(snode->passive)
+                        {
+				if(node_socket_close(snode->n_datafd)<0)
+				{
+                			logfile(LOG_ERR,"Data socket close error.(%s)",snode->ip);
+				}
+				else
+				{
+                			logfile(LOG_ERR,"Data socket closed.(%s)",snode->ip);
+				}
+                        }
+                        else
+                        {
+                                // active mode
+                                ;
+                        }
+                }
+                snode=snode->next;
+        }
+
+}
+
+void node_opendata(synclist *lptr,int isRun)
+{
+        syncnode *snode = lptr->head;
+        int i=0;
+	
+	if(!isRun) return;
+
+        while(snode!=NULL)
+        {
+                if(snode->isEnable)
+                {
+                        if(snode->passive)
+                        {
+                                if(onenode_pasv_send(snode) != 0)
+                                {
+                			die(421, LOG_ERR, "Can't passive port");
+                                }
+                        }
+                        else
+                        {
+                                // active mode
+                                ;
+                        }
+                }
+                snode=snode->next;
+        }
+ 	if(init_node_data_sock(lptr)<0)
+        {
+                die(421, LOG_ERR, "Can't Connect data port");
+        }
+
+}
+
+
+
+int read_data_from_client(int fds,syncnode *snode,int timeout)
+{
+        int bufsize=4096;
+
+        int byte=0;
+        char str[bufsize];
+        fd_set readset;
+        struct timeval tv;
+        int select_fd;
+        int flags;
+        int chk=0;
+
+        tv.tv_sec=timeout;
+        tv.tv_usec=0;
+
+
+
+        flags = fcntl(fds, F_GETFL, 0);
+        fcntl(fds, F_SETFL, flags | O_NONBLOCK);
+
+        logfile(LOG_DEBUG,"%s DATA read start",snode->ip);
+        do{
+                FD_ZERO(&readset);
+                FD_SET(fds,&readset);
+
+                select_fd=select(fds + 1,&readset,(fd_set *)0,(fd_set *)0,&tv);
+
+                if(select_fd <0)
+                {
+                        logfile(LOG_DEBUG,"DATA : %s select error.",snode->ip);
+                        return -1;
+                }
+                else if(select_fd==0)
+                {
+                        logfile(LOG_DEBUG,"DATA : %s read timeout.",snode->ip);
+                        return -1;
+                }
+
+                while(1)
+                {
+                        memset(str,0x00,bufsize);
+                        byte = read(fds, str, bufsize-1);
+
+                        if(byte<0)
+                        {
+                                logfile(LOG_DEBUG,"DATA : %s read error.",snode->ip);
+                                return -1;
+                        }
+                        else if(byte==0)
+                        {
+                                chk=1;
+                                break;
+                        }
+
+                        logfile(LOG_DEBUG,"DATA : %s",str);
+
+                }
+                if(chk) break;
+
+        }while(1);
+//      logfile(LOG_DEBUG,"data %s end : last byte=%d X %d: end :%d, last-1 : %d, last %d\n",snode->ip,byte,i,end,str[byte-2],str[byte-1]);
+
+        return 0;
+}
+
+
+int node_read_data(synclist *lptr,int isRun,int action)
+{                   
+        syncnode *snode = lptr->head;
+        int error_flag=0;
+
+	if(!isRun) return 0;
+                    
+        while(snode!=NULL)
+        {           
+                if(snode->isEnable)
+                {
+                        if(read_data_from_client(snode->n_datafd,snode,2)<0)
+                        {
+                                if(action)
+                                {
+                                        die(421, LOG_ERR,"Sync Command error LIST. (%s / %d)",snode->ip,snode->lastCode);
+                                }
+                                error_flag++;
+                        }
+                        if(node_socket_close(snode->n_datafd)<0)
+                        {
+                                logfile(LOG_ERR,"Data socket close error.(%s)",snode->ip);
+                        }
+                        else
+                        {
+                                logfile(LOG_DEBUG,"Data socket closed.(%s)",snode->ip);
+                        }
+               }
+               snode=snode->next;
+        }           
+        return error_flag;
+}
+
+
+int node_data_write(synclist *lptr,int isRun,unsigned char *buf,off_t chunk_size)
+{
+   syncnode *snode = lptr->head;
+
+   if(!isRun) return 0;
+   while(snode!=NULL)
+   {
+       if(snode->isEnable)
+       {
+           int bytes=0;
+           bytes=write(snode->n_datafd,buf,chunk_size);
+           if(bytes<0)
+           {
+                  die(421, LOG_ERR,"Data connection closed.(%s)",snode->ip);
+                              //retry_data_connect(snode);
+           }
+       }
+       snode=snode->next;
+  }
+  return 0;
+}
+
+
+int node_dir_chk(synclist *lptr,int isRun,char *cur_dir)
+{                   
+        syncnode *snode = lptr->head;
+        int error_flag=0;
+
+	if(!isRun) return 0;
+                    
+        while(snode!=NULL)
+        {
+                if(snode->isEnable)
+                {
+                        char dir_temp[1024];
+                        int count=0,chk=0;
+                        bzero(dir_temp,sizeof(dir_temp));
+
+                        for(int i=0;i<strlen(snode->readMesg);i++)
+                        {
+                                if((snode->readMesg[i]=='"') && chk)
+                                {
+                                        dir_temp[count]='\0';
+                                        break;
+
+                                }
+                                if(chk)
+                                {
+                                        dir_temp[count]=snode->readMesg[i];
+                                        count++;
+                                }
+                                if((snode->readMesg[i]=='"') && !(chk))
+                                {
+                                        chk=1;
+                                }
+                        }
+                        if(strncmp(cur_dir,dir_temp,strlen(dir_temp))!=0)
+                        {
+                                logfile(LOG_ERR,"Node %s,current dir different!!(M:%s,N:%s) \n",snode->ip,cur_dir,dir_temp);
+                                error_flag++;
+
+                        }
+                }
+                snode=snode->next;
+        }
+        return error_flag;
+}
+
+int node_cwd_chk(synclist *lptr,int isRun,char *cddir,int reqcode)
+{
+        int error_flag=0;
+                
+        if(check_all_node_code(lptr,isRun,reqcode)!=0)
+        {       
+                logfile(LOG_WARNING,"Nodes Change directory directory fail");
+                node_write_message(lptr,isRun,"CWD",cddir,NULL);
+                node_read_message(lptr,isRun,"CWD","",250,1);
+                return -1;
+        }       
+                        
+        return error_flag;
+}
+                
+int node_mkdir_chk(synclist *lptr,int isRun,char *make_dir,int reqcode)
+{               
+        int error_flag=0;
+
+	if(!isRun) return 0;
+            
+        if(check_all_node_code(lptr,isRun,reqcode)!=0)
+        {   
+                logfile(LOG_WARNING,"Nodes Create directory fail");
+                node_write_message(lptr,isRun,"RMD",make_dir,NULL);
+                node_read_message(lptr,isRun,"RMD","",250,0);
+
+                return -1;
+        }
+
         return error_flag;
 }
