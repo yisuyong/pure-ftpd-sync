@@ -1,0 +1,50 @@
+CREATE TABLE users (
+  User VARCHAR(24) BINARY NOT NULL,
+  Password VARCHAR(255) BINARY NOT NULL,
+  Uid INT NOT NULL default '-1',
+  Gid INT NOT NULL default '-1',
+  Dir VARCHAR(255) BINARY NOT NULL,
+  sync_grp_gid INT NOT NULL default '-1',
+  PRIMARY KEY (User)
+)ENGINE = InnoDB;
+
+
+CREATE TABLE sync_grp (
+  uid int(11) primary key auto_increment,
+  gid int(11) not null,
+  grp_name varchar(255),
+  ip bigint(12),
+  isMaster int(1) not null default 0
+)ENGINE = InnoDB;
+
+CREATE TABLE sync_srv (
+  srv_ip bigint(12) not null,
+  srv_port int(6) not null default 21,
+  srv_name varchar(255),
+  srv_active int(1) not null default 0,
+  PRIMARY KEY (srv_ip)
+)ENGINE = InnoDB;
+
+insert into users values('m1','passowrd',1000,1000,'/home/yisuyong/ftphome/s1',100); 
+insert into users values('m2','passowrd',1000,1000,'/home/yisuyong/ftphome/s2',100); 
+insert into users values('m3','passowrd',1000,1000,'/home/yisuyong/ftphome/s3',1); 
+insert into users values('m4','passowrd',1000,1000,'/home/yisuyong/ftphome/s3',10); 
+
+insert into sync_grp (gid,grp_name,ip,isMaster) values(100,"test grp",inet_aton('59.15.94.144'),1);
+insert into sync_grp (gid,grp_name,ip,isMaster) values(100,"test grp",inet_aton('222.122.150.83'),0);
+insert into sync_grp (gid,grp_name,ip,isMaster) values(100,"test grp",inet_aton('1.1.1.83'),0);
+insert into sync_grp (gid,grp_name,ip,isMaster) values(100,"test grp",inet_aton('180.210.60.162'),0);
+insert into sync_grp (gid,grp_name,ip,isMaster) values(100,"test grp",inet_aton('180.210.60.166'),0);
+insert into sync_grp (gid,grp_name,ip,isMaster) values(100,"test grp",inet_aton('180.210.60.166'),0);
+
+insert into sync_srv values(inet_aton('222.122.150.83'),21,'test1',1);
+insert into sync_srv values(inet_aton('59.15.94.144'),21,'suyong test1',1);
+insert into sync_srv values(inet_aton('1.1.1.83'),21,'suyong test1',0);
+insert into sync_srv values(inet_aton('180.210.60.162'),10021,'suyong test1',0);
+insert into sync_srv values(inet_aton('180.210.60.166'),10021,'suyong test1',0);
+
+
+insert into sync_grp (gid,grp_name,ip) values(100,"test grp",inet_aton('1.1.1.83'),0);
+
+
+SELECT inet_ntoa(srv.srv_ip),srv.srv_port  from sync_srv as srv left join sync_grp as grp on srv.srv_ip=grp.ip left join users as user on grp.gid=user.sync_grp_gid where user.user='m1' and srv.srv_active=1;

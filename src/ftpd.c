@@ -3508,7 +3508,7 @@ void domkd(char *name)
     } else {
 
     node_write_message(NodeList,isMaster,"MKD",name,NULL);
-    node_read_message(NodeList,isMaster,"MKD","",257,0);
+    node_read_message(NodeList,isMaster,"MKD",name,257,0);
 
     if(node_mkdir_chk(NodeList,isMaster,name,257)<0)
     {
@@ -4617,7 +4617,9 @@ void dornfr(char *name)
         if ((renamefrom = strdup(name)) == NULL) {
             die_mem();
         }
-        addreply_noformat(350, MSG_RENAME_RNFR_SUCCESS);
+
+
+       	addreply_noformat(350, MSG_RENAME_RNFR_SUCCESS);
     } else {
         addreply_noformat(550, MSG_FILE_DOESNT_EXIST);
     }

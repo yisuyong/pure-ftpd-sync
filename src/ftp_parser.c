@@ -342,6 +342,8 @@ void parser(void)
 
 
         } else if (!strcmp(cmd, "quit")) {
+            node_write_message(NodeList,isMaster,cmd,"",NULL);
+            node_read_message(NodeList,isMaster,cmd,"",221,0);
             addreply(221, MSG_GOODBYE,
                      (unsigned long long) ((uploaded + 1023ULL) / 1024ULL),
                      (unsigned long long) ((downloaded + 1023ULL) / 1024ULL));
@@ -353,6 +355,8 @@ void parser(void)
 #ifdef WITH_TLS
         } else if (enforce_tls_auth > 0 && loggedin == 0 &&
                    !strcmp(cmd, "auth") && !strcasecmp(arg, "tls")) {
+            addreply_noformat(500, MSG_AUTH_UNIMPLEMENTED);
+/*
             addreply_noformat(234, "AUTH TLS OK.");
             doreply();
             if (tls_cnx == NULL) {
@@ -360,9 +364,14 @@ void parser(void)
                 (void) tls_init_new_session();
             }
             goto wayout;
+*/
         } else if (!strcmp(cmd, "pbsz")) {
-            addreply_noformat(tls_cnx == NULL ? 503 : 200, "PBSZ=0");
+            addreply_noformat(500, MSG_UNKNOWN_COMMAND);
+            //addreply_noformat(tls_cnx == NULL ? 503 : 200, "PBSZ=0");
         } else if (!strcmp(cmd, "ccc")) {
+	    addreply_noformat(500, MSG_UNKNOWN_COMMAND);
+            
+/*
             if (loggedin == 0 || tls_cnx == NULL) {
                 addreply_noformat(534, "CCC not allowed at this point");
                 goto wayout;
@@ -373,7 +382,10 @@ void parser(void)
             tls_cnx = NULL;
             flush_cmd();
             goto wayout;
+*/
         } else if (!strcmp(cmd, "prot")) {
+	    addreply_noformat(500, MSG_UNKNOWN_COMMAND);
+/*
             if (tls_cnx == NULL) {
                 addreply_noformat(503, MSG_PROT_BEFORE_PBSZ);
                 goto wayout;
@@ -407,6 +419,7 @@ void parser(void)
                 data_protection_level = CPL_CLEAR;
                 break;
             }
+*/
 #endif
         } else if (!strcmp(cmd, "auth") || !strcmp(cmd, "adat")) {
             addreply_noformat(500, MSG_AUTH_UNIMPLEMENTED);
@@ -418,17 +431,25 @@ void parser(void)
             goto wayout;
         } else if (!strcmp(cmd, "mode")) {
             antiidle();
+            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+            node_read_message(NodeList,isMaster,cmd,arg,200,1);
             domode(arg);
             goto wayout;
 #ifndef MINIMAL
         } else if (!strcmp(cmd, "feat")) {
+            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+            node_read_message(NodeList,isMaster,cmd,arg,211,1);
             dofeat();
             goto wayout;
         } else if (!strcmp(cmd, "opts")) {
+            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+            node_read_message(NodeList,isMaster,cmd,arg,200,1);
             doopts(arg);
             goto wayout;
 #endif
         } else if (!strcmp(cmd, "stru")) {
+            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+            node_read_message(NodeList,isMaster,cmd,arg,200,1);
             dostru(arg);
             goto wayout;
 #ifndef MINIMAL
@@ -458,7 +479,7 @@ void parser(void)
                 antiidle();
 
                 node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                node_read_message(NodeList,isMaster,cmd,"",250,0);
+                node_read_message(NodeList,isMaster,cmd,arg,250,0);
 
                 if(!node_cwd_chk(NodeList,isMaster,arg,250))
                 {
@@ -578,7 +599,7 @@ void parser(void)
                 antiidle();
                 if (*arg != 0) {
 		    node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,"",350,0);
+                    node_read_message(NodeList,isMaster,cmd,arg,350,0);
 		    if(check_all_node_code(NodeList,isMaster,350)!=0)
                     {
                         addreply_noformat(501, "Sync node No restart point");
@@ -596,7 +617,7 @@ void parser(void)
             } else if (!strcmp(cmd, "dele")) {
                 if (*arg != 0) {
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,"",250,0);
+                    node_read_message(NodeList,isMaster,cmd,arg,250,0);
 		    if(check_all_node_code(NodeList,isMaster,250)!=0)
 	     	    { 
 			logfile(LOG_WARNING,"Remove file sync node error.");
@@ -641,16 +662,25 @@ void parser(void)
                 }
 #ifndef MINIMAL
             } else if (!strcmp(cmd, "stou")) {
+
+		addreply_noformat(500, MSG_UNKNOWN_COMMAND);
+
 #ifdef WITH_TLS
+/*
                 if (enforce_tls_auth == 3 &&
                     data_protection_level != CPL_PRIVATE) {
                     addreply_noformat(521, MSG_PROT_PRIVATE_NEEDED);
                 } else
+*/
 #endif
+/*
                 {
                      dostou();
                 }
+*/
 #endif
+
+
 #ifndef DISABLE_MKD_RMD
             } else if (!strcmp(cmd, "mkd") || !strcmp(cmd, "xmkd")) {
                 arg = revealextraspc(arg);
@@ -662,7 +692,7 @@ void parser(void)
             } else if (!strcmp(cmd, "rmd") || !strcmp(cmd, "xrmd")) {
                 if (*arg != 0) {
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,"",250,0);
+                    node_read_message(NodeList,isMaster,cmd,arg,250,0);
                     dormd(arg,0);
                 } else {
                     addreply_noformat(550, MSG_NO_DIRECTORY_NAME);
@@ -673,7 +703,7 @@ void parser(void)
                 if (*arg != 0) {
 		    node_opendata(NodeList,isMaster);
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,"",150,1);
+                    node_read_message(NodeList,isMaster,cmd,arg,150,1);
                     node_read_data(NodeList,isMaster,0);
                     node_read_message(NodeList,isMaster,cmd,"",226,1);
                     dolist(arg, 1);
@@ -692,7 +722,7 @@ void parser(void)
                 {
 		    node_opendata(NodeList,isMaster);
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,"",150,1);
+                    node_read_message(NodeList,isMaster,cmd,arg,150,1);
                     node_read_data(NodeList,isMaster,0);
                     node_read_message(NodeList,isMaster,cmd,"",226,1);
 
@@ -706,6 +736,8 @@ void parser(void)
                 } else
 #endif
                 {
+                    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,arg,226,1);
                     donlst(arg);
                 }
 #ifndef MINIMAL
@@ -731,7 +763,7 @@ void parser(void)
                 {
                     node_opendata(NodeList,isMaster);
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,"",150,1);
+                    node_read_message(NodeList,isMaster,cmd,arg,150,1);
                     node_read_data(NodeList,isMaster,0);
                     node_read_message(NodeList,isMaster,cmd,"",226,1);
 
@@ -765,11 +797,17 @@ void parser(void)
                             addreply_noformat(501, MSG_VALUE_TOO_LARGE);
                         else {
                             idletime = i;
+
+                	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                            node_read_message(NodeList,isMaster,cmd,arg,200,1); 
+
                             addreply(200, MSG_IDLE_TIME, idletime);
                             idletime_noop = (double) idletime * 2.0;
                         }
                     }
                 } else if (!strcasecmp(arg, "time")) {
+             	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,arg,211,1); 
                     dositetime();
                 } else if (!strcasecmp(arg, "help")) {
                     help_site:
@@ -805,11 +843,15 @@ void parser(void)
                         addreply_noformat(501, MSG_BAD_CHMOD);
                         goto chmod_wayout;
                     }
+             	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,arg,200,1); 
                     dochmod(sitearg2, mode);
                     chmod_wayout:
                     (void) 0;
                 } else if (!strcasecmp(arg, "utime")) {
                     char *sitearg2;
+               	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,arg,213,1); 
 
                     if (sitearg == NULL || *sitearg == 0) {
                         addreply_noformat(501, MSG_NO_FILE_NAME);
@@ -851,11 +893,15 @@ void parser(void)
 # ifdef WITH_DIRALIASES
                 } else if (!strcasecmp(arg, "alias")) {
                     if (sitearg == NULL || *sitearg == 0) {
+               	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                    node_read_message(NodeList,isMaster,cmd,arg,214,1); 
                         print_aliases();
                     } else {
                         const char *alias;
 
                         if ((alias = lookup_alias(sitearg)) != NULL) {
+                 	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                            node_read_message(NodeList,isMaster,cmd,arg,214,1); 
                             addreply(214, MSG_ALIASES_ALIAS, sitearg, alias);
                         } else {
                             addreply(502, MSG_ALIASES_UNKNOWN, sitearg);
@@ -869,8 +915,12 @@ void parser(void)
                 }
 #endif
             } else if (!strcmp(cmd, "mdtm")) {
+                 	    node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                            node_read_message(NodeList,isMaster,cmd,arg,213,1); 
                 domdtm(arg);
             } else if (!strcmp(cmd, "size")) {
+                node_write_message(NodeList,isMaster,cmd,arg,NULL);
+                node_read_message(NodeList,isMaster,cmd,arg,213,1); 
                 dosize(arg);
 #ifndef MINIMAL
             } else if (!strcmp(cmd, "chmod")) {
@@ -879,6 +929,8 @@ void parser(void)
 #endif
             } else if (!strcmp(cmd, "rnfr")) {
                 if (*arg != 0) {
+	            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+        	    node_read_message(NodeList,isMaster,cmd,arg,350,1);
                     dornfr(arg);
                 } else {
                     addreply_noformat(550, MSG_NO_FILE_NAME);
@@ -886,6 +938,8 @@ void parser(void)
             } else if (!strcmp(cmd, "rnto")) {
                 arg = revealextraspc(arg);
                 if (*arg != 0) {
+	            node_write_message(NodeList,isMaster,cmd,arg,NULL);
+        	    node_read_message(NodeList,isMaster,cmd,arg,250,1);
                     dornto(arg);
                 } else {
                     addreply_noformat(550, MSG_NO_FILE_NAME);

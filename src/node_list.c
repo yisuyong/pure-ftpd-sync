@@ -943,7 +943,7 @@ int node_cwd_chk(synclist *lptr,int isRun,char *cddir,int reqcode)
         {       
                 logfile(LOG_WARNING,"Nodes Change directory directory fail");
                 node_write_message(lptr,isRun,"CWD",cddir,NULL);
-                node_read_message(lptr,isRun,"CWD","",250,1);
+                node_read_message(lptr,isRun,"CWD",cddir,250,1);
                 return -1;
         }       
                         
@@ -960,7 +960,7 @@ int node_mkdir_chk(synclist *lptr,int isRun,char *make_dir,int reqcode)
         {   
                 logfile(LOG_WARNING,"Nodes Create directory fail");
                 node_write_message(lptr,isRun,"RMD",make_dir,NULL);
-                node_read_message(lptr,isRun,"RMD","",250,0);
+                node_read_message(lptr,isRun,"RMD",make_dir,250,0);
 
                 return -1;
         }
