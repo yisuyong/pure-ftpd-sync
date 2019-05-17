@@ -696,7 +696,8 @@ int onenode_pasv_send(syncnode *snode)
 
 int node_socket_close(int fd)
 {
-	return shutdown(fd,SHUT_RDWR);
+//	return shutdown(fd,SHUT_RDWR);
+	return close(fd);
 }
 
 void node_closedata(synclist *lptr,int isRun)
@@ -718,7 +719,7 @@ void node_closedata(synclist *lptr,int isRun)
 				}
 				else
 				{
-                			logfile(LOG_ERR,"Data socket closed.(%s)",snode->ip);
+                			logfile(LOG_DEBUG,"Data socket closed.(%s)",snode->ip);
 				}
                         }
                         else
@@ -877,11 +878,24 @@ int node_data_write(synclist *lptr,int isRun,unsigned char *buf,off_t chunk_size
        if(snode->isEnable)
        {
            int bytes=0;
-           bytes=write(snode->n_datafd,buf,chunk_size);
-           if(bytes<0)
+           int count=3;
+
+           for(count;count>0;count--)
            {
-                  die(421, LOG_ERR,"Data connection closed.(%s)",snode->ip);
-                              //retry_data_connect(snode);
+                if(bytes=write(snode->n_datafd,buf,chunk_size)<0)
+                {
+                        logfile(LOG_ERR,"DATA write retry(%d)",count);
+                        continue;
+                }
+                else
+                {
+                        break;
+                }
+           }
+
+           if(count<0)
+           {      
+                  die(421, LOG_ERR,"Data write error. Connection closed.(%s)",snode->ip);
            }
        }
        snode=snode->next;

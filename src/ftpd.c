@@ -3554,14 +3554,15 @@ void dormd(char *name,int flag)
         }
 #endif
 
-	if(flag)
-	{
-       	 addreply_noformat(550, "Sync node create failed.");
-	}
-	else
-	{
-       	 addreply_noformat(250, MSG_RMD_SUCCESS);
-	}
+        if(flag)
+        {
+         addreply_noformat(550, "Sync node create failed.");
+        }
+        else
+        {
+         addreply_noformat(250, MSG_RMD_SUCCESS);
+        }
+
     }
 }
 

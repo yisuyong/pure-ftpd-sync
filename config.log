@@ -5450,7 +5450,7 @@ configure: failed program was:
 configure:9656: result: no
 configure:9663: checking for sendfilev
 configure:9663: gcc -o conftest -g -O2 -fPIC -fPIE -fwrapv -fno-strict-aliasing -fno-strict-overflow -fstack-protector-all -Winit-self -Wwrite-strings -Wdiv-by-zero -Wno-unused-command-line-argument  -I/usr/local/include -D_FORTIFY_SOURCE=2  -pie -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack -L/usr/local/lib conftest.c -lcap  >&5
-/tmp/cc5Xvri1.o: In function `main':
+/tmp/ccbUkecr.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:121: undefined reference to `sendfilev'
 collect2: error: ld returned 1 exit status
 configure:9663: $? = 1
@@ -6947,7 +6947,7 @@ conftest.c:157:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccIk0Vts.o: In function `main':
+/tmp/ccZo3v5K.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:159: undefined reference to `_doprnt'
 collect2: error: ld returned 1 exit status
 configure:10794: $? = 1
@@ -7819,7 +7819,7 @@ conftest.c:161:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccEH6mSU.o: In function `main':
+/tmp/cc3oytwd.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:163: undefined reference to `pstat_getdynamic'
 collect2: error: ld returned 1 exit status
 configure:10855: $? = 1
@@ -10972,7 +10972,7 @@ conftest.c:181:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/cc2Wyqbh.o: In function `main':
+/tmp/ccDfH5ZS.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:183: undefined reference to `setproctitle'
 collect2: error: ld returned 1 exit status
 configure:12481: $? = 1
@@ -12741,7 +12741,7 @@ conftest.c:200:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccEvTTK9.o: In function `main':
+/tmp/cclSGwGN.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:202: undefined reference to `strlcpy'
 collect2: error: ld returned 1 exit status
 configure:12541: $? = 1
@@ -13033,7 +13033,7 @@ conftest.c:200:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/cc4rgDdj.o: In function `main':
+/tmp/ccr4ecWU.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:202: undefined reference to `strlcat'
 collect2: error: ld returned 1 exit status
 configure:12541: $? = 1
@@ -13663,7 +13663,7 @@ conftest.c:204:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccAWTQCS.o: In function `main':
+/tmp/cczKaygv.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:206: undefined reference to `mapviewoffile'
 collect2: error: ld returned 1 exit status
 configure:12553: $? = 1
@@ -15464,7 +15464,7 @@ conftest.c:223:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/cc6OJBcM.o: In function `main':
+/tmp/cc5GGrio.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:225: undefined reference to `srandomdev'
 collect2: error: ld returned 1 exit status
 configure:12613: $? = 1
@@ -15779,7 +15779,7 @@ conftest.c:223:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccMPeavU.o: In function `main':
+/tmp/ccNgxRUx.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:225: undefined reference to `arc4random'
 collect2: error: ld returned 1 exit status
 configure:12613: $? = 1
@@ -16094,7 +16094,7 @@ conftest.c:223:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccQ22tqZ.o: In function `main':
+/tmp/ccFt8krF.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:225: undefined reference to `arc4random_stir'
 collect2: error: ld returned 1 exit status
 configure:12613: $? = 1
@@ -16409,7 +16409,7 @@ conftest.c:223:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccKpnXG6.o: In function `main':
+/tmp/ccBOwIJM.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:225: undefined reference to `arc4random_addrandom'
 collect2: error: ld returned 1 exit status
 configure:12613: $? = 1
@@ -16724,7 +16724,7 @@ conftest.c:223:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccQiicag.o: In function `main':
+/tmp/ccFV0HwR.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:225: undefined reference to `closefrom'
 collect2: error: ld returned 1 exit status
 configure:12625: $? = 1
@@ -17122,7 +17122,7 @@ conftest.c:224:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccTa9FUi.o: In function `main':
+/tmp/ccA4u9aV.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:226: undefined reference to `getpwnam_shadow'
 collect2: error: ld returned 1 exit status
 configure:12625: $? = 1
@@ -18110,7 +18110,7 @@ conftest.c:233:1: warning: function declaration isn't a prototype [-Wstrict-prot
  main ()
  ^~~~
 cc1: warning: unrecognized command line option '-Wno-unused-command-line-argument'
-/tmp/ccKT92ds.o: In function `main':
+/tmp/ccqO3yIc.o: In function `main':
 /suyong1/devel/ftp/pure-ftpd-sync/conftest.c:235: undefined reference to `mysql_init'
 collect2: error: ld returned 1 exit status
 configure:13292: $? = 1

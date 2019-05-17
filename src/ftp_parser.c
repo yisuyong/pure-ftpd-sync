@@ -693,7 +693,7 @@ void parser(void)
             } else if (!strcmp(cmd, "rmd") || !strcmp(cmd, "xrmd")) {
                 if (*arg != 0) {
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,arg,250,0);
+                    node_read_message(NodeList,isMaster,cmd,arg,250,1);
                     dormd(arg,0);
                 } else {
                     addreply_noformat(550, MSG_NO_DIRECTORY_NAME);
@@ -774,6 +774,7 @@ void parser(void)
             } else if (!strcmp(cmd, "abor")) {
                 node_write_message(NodeList,isMaster,cmd,"",NULL);
                 node_read_message(NodeList,isMaster,cmd,"",226,1); 
+		node_closedata(NodeList,isMaster);
                 addreply_noformat(226, MSG_ABOR_SUCCESS);
 #ifndef MINIMAL
             } else if (!strcmp(cmd, "site")) {
