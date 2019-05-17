@@ -6,3 +6,4 @@ puredb/.deps
 puredb/Makefile
 src/Makefile
 src/.deps
+puredb/src/.deps
