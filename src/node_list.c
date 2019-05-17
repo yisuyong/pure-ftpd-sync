@@ -160,7 +160,7 @@ void print_Synclist(synclist *lptr)
 
 void node_free(synclist *lptr){
 	syncnode *snode=lptr->head;
-	syncnode *snode_next=lptr->head;
+	syncnode *snode_next;
 
 	while(snode!=NULL){
 		if(snode->ip!=NULL) free(snode->ip);
@@ -579,7 +579,7 @@ int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int 
                                 snode->lastCode=read_code_from_client(snode->sockfd,&snode->rset,snode->readMesg);
                                 if(!code && (snode->lastCode != code))
                                 {
-                                        logfile(LOG_DEBUG,"Node Read error : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
+                                        logfile(LOG_ERR,"Node Read error : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
                                         if(action)
                                         {
                                                 die(421, LOG_ERR,"COMMAND ERROR : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
@@ -587,11 +587,11 @@ int node_read_message(synclist *lptr,int isRun,char *cmd,char *arg,int code,int 
                                         error_flag++;
                                 }
 
-                                logfile(LOG_DEBUG,"Node Read OK : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
                                 if(snode->lastCode==421)
                                 {
                                         die(421, LOG_ERR,"COMMAND ERROR : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
                                 }
+                                logfile(LOG_DEBUG,"Node Read OK : %s ,Port %d. Message :%d  = %s",snode->ip,snode->port,snode->lastCode,snode->readMesg);
                 }
                 snode=snode->next;
         }
@@ -954,7 +954,7 @@ int node_cwd_chk(synclist *lptr,int isRun,char *cddir,int reqcode)
                 
         if(check_all_node_code(lptr,isRun,reqcode)!=0)
         {       
-                logfile(LOG_WARNING,"Nodes Change directory directory fail");
+                logfile(LOG_ERR,"Nodes Change directory directory fail");
                 node_write_message(lptr,isRun,"CWD",cddir,NULL);
                 node_read_message(lptr,isRun,"CWD",cddir,250,1);
                 return -1;
@@ -971,7 +971,7 @@ int node_mkdir_chk(synclist *lptr,int isRun,char *make_dir,int reqcode)
             
         if(check_all_node_code(lptr,isRun,reqcode)!=0)
         {   
-                logfile(LOG_WARNING,"Nodes Create directory fail");
+                logfile(LOG_ERR,"Nodes Create directory fail");
                 node_write_message(lptr,isRun,"RMD",make_dir,NULL);
                 node_read_message(lptr,isRun,"RMD",make_dir,250,0);
 

@@ -693,7 +693,7 @@ void parser(void)
             } else if (!strcmp(cmd, "rmd") || !strcmp(cmd, "xrmd")) {
                 if (*arg != 0) {
                     node_write_message(NodeList,isMaster,cmd,arg,NULL);
-                    node_read_message(NodeList,isMaster,cmd,arg,250,1);
+                    node_read_message(NodeList,isMaster,cmd,arg,250,0);
                     dormd(arg,0);
                 } else {
                     addreply_noformat(550, MSG_NO_DIRECTORY_NAME);

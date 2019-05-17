@@ -357,8 +357,6 @@ void die(const int err, const int priority, const char * const format, ...)
     char line[MAX_SYSLOG_LINE];
 
 
-    node_free(NodeList);
-
     disablesignals();
     logging = 0;
     va_start(va, format);
@@ -367,6 +365,7 @@ void die(const int err, const int priority, const char * const format, ...)
     va_end(va);
     doreply();
     logfile(priority, "%s", line);
+    node_free(NodeList);
     _EXIT(-priority - 1);
 }
 
