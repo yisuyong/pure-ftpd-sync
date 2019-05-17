@@ -281,7 +281,7 @@ int connect_node(syncnode *snode,int timeout,int block,int type)
                 {
                         snode->isEnable=0;
                 }
-                logfile(LOG_DEBUG,"%s: %s Port %d. Connect fail.This server check plz %s",buf,ip,*port,strerror(errno));
+                logfile(LOG_ERR,"%s: %s Port %d. Connect fail.This server check plz %s",buf,ip,*port,strerror(errno));
                 return -1;
         }
         else
@@ -319,7 +319,7 @@ int connect_nonb(int sockfd,const struct sockaddr *saptr, int salen,fd_set *rset
     flags = fcntl(sockfd, F_GETFL, 0);
     if(fcntl(sockfd, F_SETFL, flags | O_NONBLOCK)==-1)
     {
-           logfile(LOG_DEBUG,"connect soket non-block error : %s",strerror(errno));
+           logfile(LOG_ERR,"connect soket non-block error : %s",strerror(errno));
             return -1;
     }
 
@@ -328,7 +328,7 @@ int connect_nonb(int sockfd,const struct sockaddr *saptr, int salen,fd_set *rset
     {
         if (errno != EINPROGRESS)
         {
-           logfile(LOG_DEBUG,"connect soket error : %s",strerror(errno));
+           logfile(LOG_ERR,"connect soket error : %s",strerror(errno));
             return -1;
         }
     }
@@ -347,7 +347,7 @@ int connect_nonb(int sockfd,const struct sockaddr *saptr, int salen,fd_set *rset
                      nsec ? &tval : NULL)) == 0) {
         close(sockfd);      /* timeout */
         errno = ETIMEDOUT;
-        logfile(LOG_DEBUG,"connect timeout error : %s",strerror(errno));
+        logfile(LOG_ERR,"connect timeout error : %s",strerror(errno));
         return(-1);
     }
 
@@ -355,7 +355,7 @@ int connect_nonb(int sockfd,const struct sockaddr *saptr, int salen,fd_set *rset
         len = sizeof(error);
         if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
         {
-                logfile(LOG_DEBUG,"get connect socket opt error : %s",strerror(errno));
+                logfile(LOG_ERR,"get connect socket opt error : %s",strerror(errno));
                 return(-1);         /* Solaris pending error */
         }
     } 
@@ -470,14 +470,14 @@ int read_from_client(int fds,fd_set *rset,char *str,int maxlen)
          }
          else if(errno == ECONNRESET ) /* TCP CONN RESET */
          {
-            logfile(LOG_DEBUG,"[sds = %d] peer connect reset",fds);
+            logfile(LOG_ERR,"[sds = %d] peer connect reset",fds);
             close(fds);
             FD_CLR(fds, rset);
             return -1;
          }
          else
          {
-            logfile(LOG_DEBUG,"[sds = %d] read error",fds);
+            logfile(LOG_ERR,"[sds = %d] read error",fds);
             close(fds);
             FD_CLR(fds, rset);
             return -1;
@@ -615,7 +615,7 @@ int init_node_data_sock(synclist *lptr)
               }
               else
               {
-                 logfile(LOG_DEBUG,"Node %s,passive data socket init errror",snode->ip);
+                 logfile(LOG_ERR,"Node %s,passive data socket init errror",snode->ip);
                  return -1;
                  //에러처리
                }
@@ -670,7 +670,6 @@ int onenode_pasv_send(syncnode *snode)
                 if (sscanf(port_str, "%u %u %u %u %u %u",
                         b, b + 1, b + 2, b + 3, b + 4, b + 5) != 6)
                 {
-                        logfile(LOG_DEBUG,"node %s : Read data port error\n",snode->ip);
                         die(421, LOG_ERR,"PASV Port error.(%s / %d)",snode->ip,snode->lastCode);
                 }
                 snode->dport=(b[4] * 256) + b[5];
@@ -787,7 +786,6 @@ int read_data_from_client(int fds,syncnode *snode,int timeout)
         flags = fcntl(fds, F_GETFL, 0);
         fcntl(fds, F_SETFL, flags | O_NONBLOCK);
 
-        logfile(LOG_DEBUG,"%s DATA read start",snode->ip);
         do{
                 FD_ZERO(&readset);
                 FD_SET(fds,&readset);
@@ -796,12 +794,12 @@ int read_data_from_client(int fds,syncnode *snode,int timeout)
 
                 if(select_fd <0)
                 {
-                        logfile(LOG_DEBUG,"DATA : %s select error.",snode->ip);
+                        logfile(LOG_ERR,"DATA : %s select error.",snode->ip);
                         return -1;
                 }
                 else if(select_fd==0)
                 {
-                        logfile(LOG_DEBUG,"DATA : %s read timeout.",snode->ip);
+                        logfile(LOG_ERR,"DATA : %s read timeout.",snode->ip);
                         return -1;
                 }
 
@@ -812,7 +810,7 @@ int read_data_from_client(int fds,syncnode *snode,int timeout)
 
                         if(byte<0)
                         {
-                                logfile(LOG_DEBUG,"DATA : %s read error.",snode->ip);
+                                logfile(LOG_ERR,"DATA : %s read error.",snode->ip);
                                 return -1;
                         }
                         else if(byte==0)
