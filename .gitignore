@@ -1,0 +1,8 @@
+*.swp
+*.o
+*.tab.c
+Makefile
+puredb/.deps
+puredb/Makefile
+src/Makefile
+src/.deps

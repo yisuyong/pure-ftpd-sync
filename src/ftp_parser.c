@@ -344,6 +344,7 @@ void parser(void)
         } else if (!strcmp(cmd, "quit")) {
             node_write_message(NodeList,isMaster,cmd,"",NULL);
             node_read_message(NodeList,isMaster,cmd,"",221,0);
+		node_free(NodeList);
             addreply(221, MSG_GOODBYE,
                      (unsigned long long) ((uploaded + 1023ULL) / 1024ULL),
                      (unsigned long long) ((downloaded + 1023ULL) / 1024ULL));
