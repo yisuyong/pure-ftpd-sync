@@ -454,7 +454,7 @@ int read_from_client(int fds,fd_set *rset,char *str,int maxlen)
    int  offset=0;
    int  nBytes=0;
 
-   bzero(str,sizeof(str));
+   bzero(str,MAXDATASIZE);
 
 
 
