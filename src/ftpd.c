@@ -4341,9 +4341,9 @@ void dostor(char *name, const int append, const int autorename)
     }
 #endif
 	//jimmy
-    node_opendata(NodeList,isMaster);
 
     opendata();
+    node_opendata(NodeList,isMaster);
     if (xferfd == -1) {
         (void) close(f);
         goto end;
