@@ -696,8 +696,7 @@ int onenode_pasv_send(syncnode *snode)
 
 int node_socket_close(int fd)
 {
-//	return shutdown(fd,SHUT_RDWR);
-	return close(fd);
+	return shutdown(fd,SHUT_RDWR);
 }
 
 void node_closedata(synclist *lptr,int isRun)
