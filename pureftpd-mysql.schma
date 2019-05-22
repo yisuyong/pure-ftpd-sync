@@ -25,6 +25,7 @@ CREATE TABLE sync_srv (
   PRIMARY KEY (srv_ip)
 )ENGINE = InnoDB;
 
+
 insert into users values('m1','passowrd',1000,1000,'/home/yisuyong/ftphome/s1',100); 
 insert into users values('m2','passowrd',1000,1000,'/home/yisuyong/ftphome/s2',100); 
 insert into users values('m3','passowrd',1000,1000,'/home/yisuyong/ftphome/s3',1); 
@@ -45,6 +46,3 @@ insert into sync_srv values(inet_aton('180.210.60.166'),10021,'suyong test1',0);
 
 
 insert into sync_grp (gid,grp_name,ip) values(100,"test grp",inet_aton('1.1.1.83'),0);
-
-
-SELECT inet_ntoa(srv.srv_ip),srv.srv_port  from sync_srv as srv left join sync_grp as grp on srv.srv_ip=grp.ip left join users as user on grp.gid=user.sync_grp_gid where user.user='m1' and srv.srv_active=1;

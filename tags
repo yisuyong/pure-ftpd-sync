@@ -954,7 +954,7 @@ MKDIR_P	pam/Makefile	/^MKDIR_P = \/bin\/mkdir -p$/;"	m
 MKDIR_P	puredb/Makefile	/^MKDIR_P = \/bin\/mkdir -p$/;"	m
 MKDIR_P	puredb/src/Makefile	/^MKDIR_P = \/bin\/mkdir -p$/;"	m
 MKDIR_P	src/Makefile	/^MKDIR_P = \/bin\/mkdir -p$/;"	m
-MLST_BEGIN	src/ftpd.c	1179;"	d	file:
+MLST_BEGIN	src/ftpd.c	1178;"	d	file:
 MONTHS_NAMES	src/globals.h	161;"	d
 MSG_ABORTED	src/messages_cs_cz.h	114;"	d
 MSG_ABORTED	src/messages_da.h	114;"	d
